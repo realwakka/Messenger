@@ -1,5 +1,7 @@
 package com.realwakka.messenger.data;
 
+import org.json.JSONObject;
+
 import java.util.Date;
 
 /**
@@ -29,5 +31,12 @@ public class Chat {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String toJSON() throws Exception{
+        JSONObject obj = new JSONObject();
+        obj.put("text",text);
+        obj.put("date",date);
+        return obj.toString();
     }
 }

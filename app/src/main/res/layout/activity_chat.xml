@@ -27,6 +27,7 @@
             android:layout_height="match_parent"
             android:text="SEND"
             android:id="@+id/chat_send"
+            android:onClick="onClick"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
 

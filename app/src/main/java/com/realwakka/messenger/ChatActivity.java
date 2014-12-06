@@ -17,14 +17,27 @@ import android.widget.TextView;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 public class ChatActivity extends Activity {
@@ -33,8 +46,9 @@ public class ChatActivity extends Activity {
     ArrayList<Chat> mChatList;
     EditText mEditText;
     SendChatTask mCurrentSendTask;
-    String regid;
-    String PROJECT_NUMBER;
+    String regid="APA91bGdUMaKQr9DGeot4iARvs9b4X4gMp6CrfQlMltiwOWrzmjaI1-8SV9RsC3-5iXieNyShvZYyWqZnkjCqGplfn5oawD2L7XksVlAOqno5I8bpn7E2gWQ63fH3nxvf5tia8IA2Lq9SDPeiAZJ2FgDYJUmyuPrcA";
+    String PROJECT_NUMBER = "61823441123";
+    String apiKey = "AIzaSyDdYYZyScZoQ7REysA85CDYMNWu7hmhjG4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +60,7 @@ public class ChatActivity extends Activity {
 
         mAdapter = new ChatAdapter(mChatList);
         mEditText = (EditText)findViewById(R.id.chat_chat);
-
+        new GetRegIdTask().execute();
     }
 
     public void onClick(View v){
@@ -97,65 +111,32 @@ public class ChatActivity extends Activity {
     private class SendChatTask extends AsyncTask<String,String,String>{
         @Override
         protected String doInBackground(String... params) {
-            try{
-
+            try {
                 // 1. URL
+                HttpClient httpclient = new DefaultHttpClient();
                 URL url = new URL("https://android.googleapis.com/gcm/send");
+                HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
+                post.addHeader("Content-Type", "application/json");
+                post.addHeader("Authorization", "key=" + apiKey);
 
-                // 2. Open connection
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                Chat chat = new Chat(params[0], new Date());
 
-                // 3. Specify POST method
-                conn.setRequestMethod("POST");
+                List<NameValuePair> post_params = new ArrayList<NameValuePair>(2);
+                post_params.add(new BasicNameValuePair("registration_ids", chat.toJSON()));
+                post_params.add(new BasicNameValuePair("data", chat.toJSON()));
+                post.setEntity(new UrlEncodedFormEntity(post_params, "UTF-8"));
+                HttpResponse response = httpclient.execute(post);
+                HttpEntity entity = response.getEntity();
 
-                // 4. Set the headers
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setRequestProperty("Authorization", "key="+apiKey);
+                String responseAsString = EntityUtils.toString(entity);
+                Log.d("ChatActivity",responseAsString);
+            }
 
-                conn.setDoOutput(true);
-
-                // 5. Add JSON data into POST request body
-
-                //`5.1 Use Jackson object mapper to convert Contnet object into JSON
-                ObjectMapper mapper = new ObjectMapper();
-
-                // 5.2 Get connection output stream
-                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-
-                // 5.3 Copy Content "JSON" into
-
-                mapper.writeValue(wr, content);
-
-                // 5.4 Send the request
-                wr.flush();
-
-                // 5.5 close
-                wr.close();
-
-                // 6. Get the response
-                int responseCode = conn.getResponseCode();
-                System.out.println("\nSending 'POST' request to URL : " + url);
-                System.out.println("Response Code : " + responseCode);
-
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                // 7. Print result
-                System.out.println(response.toString());
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
+
         }
 
     }
