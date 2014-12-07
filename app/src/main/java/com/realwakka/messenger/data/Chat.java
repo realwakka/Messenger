@@ -2,6 +2,8 @@ package com.realwakka.messenger.data;
 
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -36,7 +38,19 @@ public class Chat {
     public String toJSON() throws Exception{
         JSONObject obj = new JSONObject();
         obj.put("text",text);
-        obj.put("date",date);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        String date_str = format.format(date);
+
+        obj.put("date",date_str);
         return obj.toString();
+    }
+
+    public static Chat fromJSON(String json) throws Exception{
+        JSONObject obj = new JSONObject(json);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d = format.parse(obj.getString("date"));
+        return new Chat(obj.getString("text"),d);
     }
 }

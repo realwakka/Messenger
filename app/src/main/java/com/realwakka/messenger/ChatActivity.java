@@ -23,9 +23,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -116,15 +119,24 @@ public class ChatActivity extends Activity {
                 HttpClient httpclient = new DefaultHttpClient();
                 URL url = new URL("https://android.googleapis.com/gcm/send");
                 HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
-                post.addHeader("Content-Type", "application/json");
-                post.addHeader("Authorization", "key=" + apiKey);
+                post.setHeader("Content-Type", "application/json");
+                post.setHeader("Authorization", "key=" + apiKey);
 
                 Chat chat = new Chat(params[0], new Date());
 
-                List<NameValuePair> post_params = new ArrayList<NameValuePair>(2);
-                post_params.add(new BasicNameValuePair("registration_ids", chat.toJSON()));
-                post_params.add(new BasicNameValuePair("data", chat.toJSON()));
-                post.setEntity(new UrlEncodedFormEntity(post_params, "UTF-8"));
+                JSONObject obj = new JSONObject();
+
+                JSONArray reg_ids = new JSONArray();
+                reg_ids.put(regid);
+                obj.put("registration_ids",reg_ids);
+
+                obj.put("data",chat.toJSON());
+
+                StringEntity stringEntity = new StringEntity(obj.toString());
+
+                post.setEntity(stringEntity);
+
+
                 HttpResponse response = httpclient.execute(post);
                 HttpEntity entity = response.getEntity();
 
