@@ -1,4 +1,4 @@
-package com.realwakka.messenger;
+package com.realwakka.messenger.encryption;
 
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -15,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by realwakka on 14. 11. 28.
  */
 public class Translator {
+
     public static byte[] encryptString(String text,byte[] key)
             throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
 

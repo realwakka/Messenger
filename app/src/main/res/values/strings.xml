@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_chat">ChatActivity</string>
-
+    <string name="title_activity_accept">AcceptActivity</string>
+    <string name="preference_file_key">messenger_data</string>
 </resources>

@@ -119,8 +119,8 @@ public class ChatActivity extends Activity {
                 HttpClient httpclient = new DefaultHttpClient();
                 URL url = new URL("https://android.googleapis.com/gcm/send");
                 HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
-                post.setHeader("Content-Type", "application/json");
-                post.setHeader("Authorization", "key=" + apiKey);
+                post.addHeader("Content-Type", "application/json");
+                post.addHeader("Authorization", "key=" + apiKey);
 
                 Chat chat = new Chat(params[0], new Date());
 
@@ -128,10 +128,10 @@ public class ChatActivity extends Activity {
 
                 JSONArray reg_ids = new JSONArray();
                 reg_ids.put(regid);
+
                 obj.put("registration_ids",reg_ids);
-
-                obj.put("data",chat.toJSON());
-
+                obj.put("data",chat.toJSONObject());
+                Log.d("ChatActivity",obj.toString());
                 StringEntity stringEntity = new StringEntity(obj.toString());
 
                 post.setEntity(stringEntity);

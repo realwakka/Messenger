@@ -53,4 +53,16 @@ public class Chat {
         Date d = format.parse(obj.getString("date"));
         return new Chat(obj.getString("text"),d);
     }
+
+    public JSONObject toJSONObject() throws Exception{
+        JSONObject obj = new JSONObject();
+        obj.put("text",text);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        String date_str = format.format(date);
+
+        obj.put("date",date_str);
+        return obj;
+    }
 }

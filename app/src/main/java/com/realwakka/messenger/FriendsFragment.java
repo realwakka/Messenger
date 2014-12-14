@@ -35,10 +35,6 @@ public class FriendsFragment extends Fragment {
         mFriendList = new ArrayList<Friend>();
 
 
-
-
-
-
         return v;
     }
 

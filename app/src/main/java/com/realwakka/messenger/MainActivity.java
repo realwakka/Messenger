@@ -66,6 +66,9 @@ public class MainActivity extends FragmentActivity {
                 case 1:
                     fragment = new FriendsFragment();
                     break;
+                case 2:
+                    fragment = new NFCFragment();
+                    break;
             }
 
             Bundle args = new Bundle();
@@ -78,7 +81,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override

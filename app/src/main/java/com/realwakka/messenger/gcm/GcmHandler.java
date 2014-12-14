@@ -40,12 +40,7 @@ public class GcmHandler extends IntentService {
         String messageType = gcm.getMessageType(intent);
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-            /*
-             * Filter messages based on message type. Since it is likely that GCM
-             * will be extended in the future with new message types, just ignore
-             * any message types you're not interested in, or that you don't
-             * recognize.
-             */
+
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
 
@@ -58,7 +53,7 @@ public class GcmHandler extends IntentService {
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 
-                sendNotification("Received: " + extras.getString("data"));
+                sendNotification("Received: " + extras.getString("text"));
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
