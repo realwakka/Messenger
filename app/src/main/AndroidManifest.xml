@@ -40,6 +40,7 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.hmkcode.android.gcm" />
             </intent-filter>
         </receiver>
@@ -52,12 +53,16 @@
             android:name=".AcceptActivity"
             android:label="@string/title_activity_accept" >
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="application/vnd.com.example.android.beam" />
             </intent-filter>
-
-
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register" >
         </activity>
     </application>
 

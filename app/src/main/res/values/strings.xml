@@ -8,4 +8,6 @@
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_activity_accept">AcceptActivity</string>
     <string name="preference_file_key">messenger_data</string>
+    <string name="title_activity_register">RegisterActivity</string>
+     <string name="project_number">61823441123</string>
 </resources>

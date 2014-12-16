@@ -2,12 +2,14 @@ package com.realwakka.messenger;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +19,9 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
@@ -42,10 +47,6 @@ public class MainActivity extends FragmentActivity {
 
         final ActionBar actionBar = getActionBar();
 //        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-
-
-
 
 
     }
@@ -89,6 +90,9 @@ public class MainActivity extends FragmentActivity {
             return "OBJECT " + (position + 1);
         }
     }
+
+
+
 }
 
 
