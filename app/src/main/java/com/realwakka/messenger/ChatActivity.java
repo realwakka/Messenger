@@ -1,6 +1,10 @@
 package com.realwakka.messenger;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +20,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
+import com.realwakka.messenger.data.Friend;
+import com.realwakka.messenger.data.Option;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -38,6 +44,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,9 +56,29 @@ public class ChatActivity extends Activity {
     ArrayList<Chat> mChatList;
     EditText mEditText;
     SendChatTask mCurrentSendTask;
-    String regid="APA91bGdUMaKQr9DGeot4iARvs9b4X4gMp6CrfQlMltiwOWrzmjaI1-8SV9RsC3-5iXieNyShvZYyWqZnkjCqGplfn5oawD2L7XksVlAOqno5I8bpn7E2gWQ63fH3nxvf5tia8IA2Lq9SDPeiAZJ2FgDYJUmyuPrcA";
-    String PROJECT_NUMBER = "61823441123";
-    String apiKey = "AIzaSyDdYYZyScZoQ7REysA85CDYMNWu7hmhjG4";
+    Friend mFriend;
+
+    Option mOption;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver,new IntentFilter("com.realwakka.messenger.chat"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,14 +90,23 @@ public class ChatActivity extends Activity {
 
         mAdapter = new ChatAdapter(mChatList);
         mEditText = (EditText)findViewById(R.id.chat_chat);
-        new GetRegIdTask().execute();
+
+        String friend_json = getIntent().getStringExtra("FRIEND");
+
+        Log.d("ChatActivity",friend_json);
+        mFriend = Friend.fromJSON(friend_json);
+        mOption = Option.load(this);
+
+
+
     }
 
     public void onClick(View v){
         switch(v.getId()){
             case R.id.chat_send:
                 String msg = mEditText.getText().toString();
-                new SendChatTask().execute(msg);
+                mCurrentSendTask = new SendChatTask();
+                mCurrentSendTask.execute(msg);
                 break;
         }
     }
@@ -115,19 +151,21 @@ public class ChatActivity extends Activity {
         @Override
         protected String doInBackground(String... params) {
             try {
+                String apiKey = getString(R.string.project_apikey);
+
                 // 1. URL
                 HttpClient httpclient = new DefaultHttpClient();
                 URL url = new URL("https://android.googleapis.com/gcm/send");
                 HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
-                post.addHeader("Content-Type", "application/json");
+                post.addHeader("Content-Type", "application/json; charset=UTF-8");
                 post.addHeader("Authorization", "key=" + apiKey);
-
-                Chat chat = new Chat(params[0], new Date());
+                String encoded = URLEncoder.encode(params[0],"UTF-8");
+                Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encoded, new Date());
 
                 JSONObject obj = new JSONObject();
 
                 JSONArray reg_ids = new JSONArray();
-                reg_ids.put(regid);
+                reg_ids.put(mFriend.getRegid());
 
                 obj.put("registration_ids",reg_ids);
                 obj.put("data",chat.toJSONObject());
@@ -151,27 +189,6 @@ public class ChatActivity extends Activity {
 
         }
 
-    }
-
-    private class GetRegIdTask extends AsyncTask<Void,Void,String>{
-        GoogleCloudMessaging gcm;
-        @Override
-        protected String doInBackground(Void... params) {
-            String msg = "";
-            try {
-                if (gcm == null) {
-                    gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-                }
-                regid = gcm.register(PROJECT_NUMBER);
-                msg = "Device registered, registration ID=" + regid;
-                Log.i("GCM", msg);
-
-            } catch (IOException ex) {
-                msg = "Error :" + ex.getMessage();
-
-            }
-            return msg;
-        }
     }
 
 }

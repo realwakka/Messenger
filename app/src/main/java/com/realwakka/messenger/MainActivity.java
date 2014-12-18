@@ -2,6 +2,9 @@ package com.realwakka.messenger;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.realwakka.messenger.data.Option;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -30,7 +34,7 @@ public class MainActivity extends FragmentActivity {
     ListView mListView;
     ViewPager mViewPager;
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
-
+    private final int REGISTER_REQUEST=120;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +51,25 @@ public class MainActivity extends FragmentActivity {
 
         final ActionBar actionBar = getActionBar();
 //        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
+        Option option = Option.load(this);
+        if(option==null){
+            Intent intent = new Intent(this,RegisterActivity.class);
+            startActivityForResult(intent,REGISTER_REQUEST);
+        }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode){
+            case REGISTER_REQUEST:
+                if(resultCode==RESULT_CANCELED){
+                    finish();
+                }
+                break;
+        }
+    }
+
     class DemoCollectionPagerAdapter extends FragmentStatePagerAdapter {
         public DemoCollectionPagerAdapter(FragmentManager fm) {
             super(fm);

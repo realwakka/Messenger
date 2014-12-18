@@ -8,6 +8,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.os.Handler;
 import android.os.Message;
@@ -19,6 +20,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.realwakka.messenger.data.NfcData;
+import com.realwakka.messenger.data.Option;
 
 import java.nio.charset.Charset;
 
@@ -38,34 +42,25 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_nfc, container, false);
         mTextView = (TextView)v.findViewById(R.id.nfc_text);
-        Button button = (Button)v.findViewById(R.id.nfc_button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),AcceptActivity.class);
-                startActivity(intent);
-            }
-        });
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
-        Log.d("NFCFragment","NFC READY");
+
         mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
         mNfcAdapter.setOnNdefPushCompleteCallback(this, getActivity());
 
+        Log.d("NFCFragment","NFC READY");
         return v;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        Time time = new Time();
-        time.setToNow();
-        String text = ("Beam me up!\n\n" +
-                "Beam Time: " + time.format("%H:%M:%S"));
+
+        Option option = Option.load(getActivity());
+
+        NfcData nfcData = new NfcData(option.getRegid(),option.getName());
+
+        String text = nfcData.toJSON();
         NdefMessage msg = new NdefMessage(
                 new NdefRecord[] { createMimeRecord(
                         "application/vnd.com.example.android.beam", text.getBytes())
@@ -79,6 +74,8 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         // A handler is needed to send messages to the activity when this
         // callback occurs, because it happens from a binder thread
         mHandler.obtainMessage(MESSAGE_SENT).sendToTarget();
+
+
     }
     private final Handler mHandler = new Handler() {
         @Override
@@ -97,4 +94,13 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
                 NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
         return mimeRecord;
     }
+
+    private void processIntent(Intent intent) {
+        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
+                NfcAdapter.EXTRA_NDEF_MESSAGES);
+        // only one message sent during the beam
+        NdefMessage msg = (NdefMessage) rawMsgs[0];
+        // record 0 contains the MIME type, record 1 is the AAR, if present
+    }
+
 }

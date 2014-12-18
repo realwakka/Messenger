@@ -1,5 +1,7 @@
 package com.realwakka.messenger.data;
 
+import com.google.gson.Gson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,7 +24,7 @@ public class Friend {
 
     }
 
-    public Friend(int id, String name, byte[] pubicKey, String regid) {
+    public Friend(long id, String name, byte[] pubicKey, String regid) {
         this.id = id;
         this.name = name;
         PubicKey = pubicKey;
@@ -63,28 +65,15 @@ public class Friend {
         PubicKey = pubicKey;
     }
 
-    public static Friend fromJSON(String json) throws Exception{
-        JSONObject obj = new JSONObject(json);
-        int id = obj.getInt(ID_JSON_KEY);
-        String name = obj.getString(NAME_JSON_KEY);
-        byte[] pub = obj.getString(PUB_JSON_KEY).getBytes();
-        String regid = obj.getString(REGID_JSON_KEY);
-        return new Friend(id,name,pub,regid);
+    public static Friend fromJSON(String json){
+        Gson gson = new Gson();
+        Friend friend = gson.fromJson(json,Friend.class);
+        return friend;
     }
 
-    public static String toJSON(Friend friend) throws Exception{
-        String json=null;
-
-        JSONObject obj = new JSONObject();
-
-        obj.put(ID_JSON_KEY,friend.getId());
-        obj.put(NAME_JSON_KEY,friend.getName());
-        obj.put(PUB_JSON_KEY,friend.getPubicKey());
-        obj.put(REGID_JSON_KEY,friend.getRegid());
-
-        json = obj.toString();
-
-        return json;
+    public String toJSON() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 
 

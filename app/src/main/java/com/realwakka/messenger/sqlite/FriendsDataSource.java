@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.realwakka.messenger.data.Friend;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +45,26 @@ public class FriendsDataSource {
 
     }
 
+    public ArrayList<Friend> getFriendsList(){
+        ArrayList<Friend> list = new ArrayList<Friend>();
+
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_FRIENDS,
+                allColumns, null,null, null, null, null);
+
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Friend comment = cursorToFriend(cursor);
+            list.add(comment);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+
+        return list;
+    }
+    private Friend cursorToFriend(Cursor cursor) {
+        return new Friend(cursor.getLong(0),cursor.getString(1),null,cursor.getString(2));
+    }
 
 }

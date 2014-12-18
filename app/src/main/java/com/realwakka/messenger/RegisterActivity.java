@@ -41,7 +41,7 @@ public class RegisterActivity extends Activity {
 
         @Override
         protected String doInBackground(Void... params) {
-            String regid = "";
+            String regid = null;
             try {
                 if (gcm == null) {
                     gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
@@ -58,7 +58,13 @@ public class RegisterActivity extends Activity {
 
         @Override
         protected void onPostExecute(String s) {
-            registerOption(s);
+            if(s==null){
+                setResult(RESULT_CANCELED);
+            }else{
+                setResult(RESULT_OK);
+                registerOption(s);
+            }
+
             finish();
         }
     }

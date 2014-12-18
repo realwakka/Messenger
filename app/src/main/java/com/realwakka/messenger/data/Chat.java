@@ -1,7 +1,12 @@
 package com.realwakka.messenger.data;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.apache.http.util.EncodingUtils;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,14 +15,23 @@ import java.util.Date;
  * Created by realwakka on 14. 11. 29.
  */
 public class Chat {
-
+    private int type;
+    private String from_reg;
+    private String to_reg;
     private String text;
     private Date date;
 
-    public Chat(String text, Date date) {
+    public static final int TYPE_ACCEPT=0;
+    public static final int TYPE_MESSAGE=1;
+
+    public Chat(int type, String from_reg, String to_reg, String text, Date date) {
+        this.type = type;
+        this.from_reg = from_reg;
+        this.to_reg = to_reg;
         this.text = text;
         this.date = date;
     }
+
 
     public String getText() {
         return text;
@@ -35,34 +49,29 @@ public class Chat {
         this.date = date;
     }
 
-    public String toJSON() throws Exception{
-        JSONObject obj = new JSONObject();
-        obj.put("text",text);
+    public String toJSON(){
+        Gson gson = new GsonBuilder()
+                .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+        String json = gson.toJson(this);
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        String date_str = format.format(date);
+        return gson.toJson(this);
 
-        obj.put("date",date_str);
-        return obj.toString();
+
     }
 
     public static Chat fromJSON(String json) throws Exception{
-        JSONObject obj = new JSONObject(json);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date d = format.parse(obj.getString("date"));
-        return new Chat(obj.getString("text"),d);
+        Gson gson = new GsonBuilder()
+                .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
+        return gson.fromJson(json,Chat.class);
     }
 
     public JSONObject toJSONObject() throws Exception{
-        JSONObject obj = new JSONObject();
-        obj.put("text",text);
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        JSONObject obj = new JSONObject(toJSON());
 
-        String date_str = format.format(date);
-
-        obj.put("date",date_str);
         return obj;
+
     }
+
 }

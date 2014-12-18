@@ -2,16 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     tools:context="com.realwakka.messenger.NFCFragment">
 
     <TextView
         android:id="@+id/nfc_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="nfc" />
-    <Button
-        android:id="@+id/nfc_button"
-        android:text="accept"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:text="NFC SENDING READY" />
+
 </LinearLayout>

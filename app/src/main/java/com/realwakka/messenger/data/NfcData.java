@@ -1,20 +1,30 @@
 package com.realwakka.messenger.data;
 
+import com.google.gson.Gson;
+
 import org.json.JSONObject;
 
 /**
  * Created by realwakka on 12/14/14.
  */
 public class NfcData {
-
+    private String name;
     private String regid;
+
 
     private static final String REGID_KEY="REGID";
 
-
-    public NfcData(String regid) {
+    public NfcData(String regid, String name) {
         this.regid = regid;
+        this.name = name;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getRegid() {
@@ -25,15 +35,15 @@ public class NfcData {
         this.regid = regid;
     }
 
-    public static String toJSON(NfcData data) throws Exception{
-        JSONObject obj = new JSONObject();
-        obj.put(REGID_KEY,data.getRegid());
-        return obj.toString();
+    public String toJSON(){
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 
-    public static NfcData fromJSON(String json) throws Exception{
-        JSONObject obj = new JSONObject(json);
-        return new NfcData(obj.getString(REGID_KEY));
+    public static NfcData fromJSON(String json){
+        Gson gson = new Gson();
+        return gson.fromJson(json,NfcData.class);
+
     }
 
 }

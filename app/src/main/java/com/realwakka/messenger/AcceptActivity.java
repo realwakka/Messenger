@@ -18,6 +18,10 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.realwakka.messenger.data.Friend;
+import com.realwakka.messenger.data.NfcData;
+import com.realwakka.messenger.sqlite.FriendsDataSource;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
@@ -62,7 +66,6 @@ public class AcceptActivity extends Activity {
     }
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
         Log.d("AcceptActivity","readText");
-
         byte[] payload = record.getPayload();
 
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
@@ -75,7 +78,7 @@ public class AcceptActivity extends Activity {
         String action = intent.getAction();
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 
-        String s = action + "\n\n" + tag.toString();
+        String s = "";
 
         // parse through all NDEF messages and their records and pick text type only
         Parcelable[] data = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
@@ -96,43 +99,21 @@ public class AcceptActivity extends Activity {
         }
 
         mTextView.setText(s);
+
+        NfcData nfcData = NfcData.fromJSON(s);
+
+        FriendsDataSource dataSource = new FriendsDataSource(this);
+        dataSource.open();
+        byte[] b = new byte[]{};
+
+        dataSource.addFriend(new Friend(0,nfcData.getName(),new byte[]{},nfcData.getRegid()));
+
+        dataSource.close();
     }
     @Override
     public void onNewIntent(Intent intent) {
         Log.d("AcceptActivity","onNewIntent");
-        String action = intent.getAction();
-        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-        String s = action + "\n\n" + tag.toString();
-
-        // parse through all NDEF messages and their records and pick text type only
-        Parcelable[] data = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-        if (data != null) {
-            Log.d("AcceptActivity","data not null");
-            try {
-                for (int i = 0; i < data.length; i++) {
-                    NdefRecord [] recs = ((NdefMessage)data[i]).getRecords();
-                    for (int j = 0; j < recs.length; j++) {
-                        if (recs[j].getTnf() == NdefRecord.TNF_WELL_KNOWN &&
-                                Arrays.equals(recs[j].getType(), NdefRecord.RTD_TEXT)) {
-                            byte[] payload = recs[j].getPayload();
-                            String textEncoding = ((payload[0] & 0200) == 0) ? "UTF-8" : "UTF-16";
-                            int langCodeLen = payload[0] & 0077;
-
-                            s += ("\n\nNdefMessage[" + i + "], NdefRecord[" + j + "]:\n\"" +
-                                    new String(payload, langCodeLen + 1, payload.length - langCodeLen - 1,
-                                            textEncoding) + "\"");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Log.e("TagDispatch", e.toString());
-            }
-        }else{
-            Log.d("AcceptActivity","data null");
-        }
-
-        mTextView.setText(s);
+        loadData(intent);
     }
 
     @Override

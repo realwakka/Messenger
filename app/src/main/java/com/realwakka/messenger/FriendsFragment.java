@@ -1,23 +1,31 @@
 package com.realwakka.messenger;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.realwakka.messenger.data.Friend;
+import com.realwakka.messenger.sqlite.FriendsDataSource;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 
 public class FriendsFragment extends Fragment {
 
     ListView mListView;
     ArrayList<Friend> mFriendList;
-
+    FriendsAdapter mAdapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,21 +40,49 @@ public class FriendsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_friends, container, false);
         mListView = (ListView)v.findViewById(R.id.friends_list);
 
-        mFriendList = new ArrayList<Friend>();
+        FriendsDataSource dataSource = new FriendsDataSource(getActivity());
+        dataSource.open();
+        mFriendList = dataSource.getFriendsList();
 
+        Log.d("FriendsFragment","Friend count" + mFriendList.size());
 
+        mAdapter = new FriendsAdapter(getActivity(),mFriendList);
+        mListView.setAdapter(mAdapter);
+
+        mListView.setOnItemClickListener(new FriendClickListener());
         return v;
     }
 
+    class FriendClickListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Friend friend = mFriendList.get(position);
+            Intent intent = new Intent(getActivity(),ChatActivity.class);
+            Log.d("FriendsFragment",friend.toJSON());
+            intent.putExtra("FRIEND",friend.toJSON());
+
+            startActivity(intent);
+
+        }
+    }
+
     class FriendsAdapter extends BaseAdapter{
+        Context context;
+        ArrayList<Friend> list;
+
+        FriendsAdapter(Context context, ArrayList<Friend> list) {
+            this.context = context;
+            this.list = list;
+        }
+
         @Override
         public int getCount() {
-            return 0;
+            return list.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return null;
+            return list.get(position);
         }
 
         @Override
@@ -55,8 +91,16 @@ public class FriendsFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return null;
+        public View getView(int position, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.item_friend, viewGroup, false);
+
+            Friend friend = list.get(position);
+            TextView mName = (TextView)v.findViewById(R.id.friend_name);
+            mName.setText(friend.getName());
+
+
+            return v;
         }
     }
 

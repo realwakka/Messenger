@@ -22,6 +22,30 @@ public class Option {
         this.alarm = alarm;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRegid() {
+        return regid;
+    }
+
+    public void setRegid(String regid) {
+        this.regid = regid;
+    }
+
+    public boolean isAlarm() {
+        return alarm;
+    }
+
+    public void setAlarm(boolean alarm) {
+        this.alarm = alarm;
+    }
+
     public void save(Context context){
         SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
@@ -30,11 +54,19 @@ public class Option {
         editor.commit();
 
     }
-    public static Option load(Context context){
+    public static Option load(Context context) {
         SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        String json = pref.getString(PREF_KEY,null);
-        return fromJSON(json);
+        String json = pref.getString(PREF_KEY, null);
+
+        if (json == null) {
+            return null;
+        } else{
+
+            return fromJSON(json);
+        }
     }
+
+
 
     public String toJSON(){
         Gson gson = new Gson();
