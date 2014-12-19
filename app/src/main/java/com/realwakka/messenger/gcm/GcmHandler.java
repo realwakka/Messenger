@@ -87,7 +87,6 @@ public class GcmHandler extends IntentService {
 
         Log.d("sender", "Broadcasting message");
         Intent intent = new Intent("custom-event-name");
-        // You can also include some extra data.
         intent.putExtra("message", "This is my message!");
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 

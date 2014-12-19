@@ -32,6 +32,29 @@ public class Chat {
         this.date = date;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getFrom_reg() {
+        return from_reg;
+    }
+
+    public void setFrom_reg(String from_reg) {
+        this.from_reg = from_reg;
+    }
+
+    public String getTo_reg() {
+        return to_reg;
+    }
+
+    public void setTo_reg(String to_reg) {
+        this.to_reg = to_reg;
+    }
 
     public String getText() {
         return text;

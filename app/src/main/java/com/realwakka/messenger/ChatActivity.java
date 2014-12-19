@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,6 +52,8 @@ import java.util.List;
 
 
 public class ChatActivity extends Activity {
+    public static String STATE="";
+
     ListView mChatView;
     ChatAdapter mAdapter;
     ArrayList<Chat> mChatList;
@@ -59,6 +62,8 @@ public class ChatActivity extends Activity {
     Friend mFriend;
 
     Option mOption;
+
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -70,13 +75,16 @@ public class ChatActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mReceiver,new IntentFilter("com.realwakka.messenger.chat"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter("com.realwakka.messenger.chat"));
+
+        STATE=mFriend.getRegid();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        STATE="PAUSED";
     }
 
     @Override
@@ -110,6 +118,8 @@ public class ChatActivity extends Activity {
                 break;
         }
     }
+
+
 
     private class ChatAdapter extends BaseAdapter{
         ArrayList<Chat> list;
