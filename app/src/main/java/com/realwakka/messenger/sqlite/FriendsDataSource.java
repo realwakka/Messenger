@@ -44,7 +44,13 @@ public class FriendsDataSource {
         friend.setId(insertId);
 
     }
-
+    public String getFriendNameByRegid(String regid){
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_FRIENDS,
+                allColumns, MySQLiteHelper.FRIENDS_COLUMN_REGID+"=?",new String[]{regid}, null, null, null);
+        cursor.moveToFirst();
+        Friend friend = cursorToFriend(cursor);
+        return friend.getName();
+    }
     public ArrayList<Friend> getFriendsList(){
         ArrayList<Friend> list = new ArrayList<Friend>();
 

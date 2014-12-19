@@ -23,6 +23,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.Option;
+import com.realwakka.messenger.sqlite.ChatsDataSource;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -51,7 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class ChatActivity extends Activity {
+public class ChatActivity extends Activity{
     public static String STATE="";
 
     ListView mChatView;
@@ -63,20 +64,35 @@ public class ChatActivity extends Activity {
 
     Option mOption;
 
+    ChatsDataSource mDataSource;
 
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Chat chat = new Chat(0,mFriend.getRegid(),mOption.getRegid(),intent.getStringExtra("message"),new Date());
+            processReceivedChat(chat);
 
         }
     };
+    private void processReceivedChat(Chat chat){
+
+        mDataSource.addChat(chat);
+
+        ArrayList<Chat> list = (ArrayList<Chat>)mDataSource.getAllChatsByRegid(mFriend.getRegid());
+        mChatList.clear();
+        mChatList.addAll(list);
+        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetInvalidated();
+
+
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter("com.realwakka.messenger.chat"));
-
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter(mFriend.getRegid()));
+        mDataSource.open();
         STATE=mFriend.getRegid();
     }
 
@@ -84,6 +100,7 @@ public class ChatActivity extends Activity {
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        mDataSource.close();
         STATE="PAUSED";
     }
 
@@ -92,18 +109,23 @@ public class ChatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mChatView = (ListView)findViewById(R.id.chat_list);
-
-        mChatList = new ArrayList<Chat>();
-
-        mAdapter = new ChatAdapter(mChatList);
-        mEditText = (EditText)findViewById(R.id.chat_chat);
+        mDataSource = new ChatsDataSource(this);
+        mDataSource.open();
 
         String friend_json = getIntent().getStringExtra("FRIEND");
-
-        Log.d("ChatActivity",friend_json);
         mFriend = Friend.fromJSON(friend_json);
         mOption = Option.load(this);
+
+
+        mChatView = (ListView)findViewById(R.id.chat_list);
+
+
+        mChatList = (ArrayList<Chat>)mDataSource.getAllChatsByRegid(mFriend.getRegid());
+        Log.d("ChatActivity","CHATLIST"+mChatList.size());
+
+        mAdapter = new ChatAdapter(mChatList);
+        mChatView.setAdapter(mAdapter);
+        mEditText = (EditText)findViewById(R.id.chat_chat);
 
 
 
@@ -150,9 +172,8 @@ public class ChatActivity extends Activity {
             TextView textView = (TextView)v.findViewById(R.id.chat_chat);
 
             Chat chat = list.get(position);
-
             textView.setText(chat.getText());
-
+            Log.d("ChatActivity",chat.getText());
             return v;
         }
     }

@@ -65,14 +65,7 @@ public class GcmHandler extends IntentService {
                     // If it's a regular GCM message, do some work.
                 } else if (GoogleCloudMessaging.
                         MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                    extras.getInt("type");
-
-                    String encoded = extras.getString("text");
-                    String decoded = URLDecoder.decode(encoded, "UTF-8");
-
-                    sendNotification("Received: " + decoded);
-
-
+                    processTypeMessage(extras);
 
                     Log.i(TAG, "Received: " + extras.toString());
                 }
@@ -83,14 +76,20 @@ public class GcmHandler extends IntentService {
 
     }
 
-    private void processTypeMessage(){
+    private void processTypeMessage(Bundle extras) throws Exception{
+        String encoded = extras.getString("text");
+        String decoded_msg = URLDecoder.decode(encoded, "UTF-8");
+        String sender = extras.getString("from_reg");
 
-        Log.d("sender", "Broadcasting message");
-        Intent intent = new Intent("custom-event-name");
-        intent.putExtra("message", "This is my message!");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Intent intent = new Intent(sender);
+        intent.putExtra("message", decoded_msg);
 
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        boolean result = manager.sendBroadcast(intent);
 
+        sendNotification(decoded_msg);
+
+        Log.d("GcmHandler","sendBroadcast : "+result);
     }
     private void sendNotification(String msg) {
         this.msg = msg;

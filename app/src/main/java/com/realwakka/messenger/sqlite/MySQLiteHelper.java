@@ -24,12 +24,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper{
     public static final String CHATS_COLUMN_SENDER = "sender";
     public static final String CHATS_COLUMN_RECEIVER = "receiver";
     public static final String CHATS_COLUMN_TEXT="text";
+    public static final String CHATS_COLUMN_DATE="date";
 
     private static final String CHATS_TABLE_CREATE="create table "+TABLE_CHATS+" ( "+CHATS_COLUMN_ID+" integer primary key autoincrement, " + CHATS_COLUMN_SENDER
-            + " integer not null," + CHATS_COLUMN_RECEIVER + " integer not null,"+ CHATS_COLUMN_TEXT + " text);";
+            + " integer not null," + CHATS_COLUMN_RECEIVER + " integer not null,"+ CHATS_COLUMN_TEXT + " text,"+CHATS_COLUMN_DATE+" varchar(20));";
 
-    private static final int DATABASE_VERSION = 1;
-
+    private static final int DATABASE_VERSION = 2;
 
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

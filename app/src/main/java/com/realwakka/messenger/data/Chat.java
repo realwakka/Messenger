@@ -90,9 +90,7 @@ public class Chat {
     }
 
     public JSONObject toJSONObject() throws Exception{
-
         JSONObject obj = new JSONObject(toJSON());
-
         return obj;
 
     }
