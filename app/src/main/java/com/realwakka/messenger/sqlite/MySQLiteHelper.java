@@ -43,8 +43,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS "+FRIENDS_TABLE_CREATE);
-        db.execSQL("DROP TABLE IF EXISTS "+CHATS_TABLE_CREATE);
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_FRIENDS);
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_CHATS);
 
         onCreate(db);
     }

@@ -86,6 +86,7 @@ public class ChatActivity extends Activity{
         mAdapter.notifyDataSetChanged();
         mAdapter.notifyDataSetInvalidated();
 
+        mChatView.setSelection(mChatList.size());
 
     }
 

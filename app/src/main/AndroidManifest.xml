@@ -13,6 +13,7 @@
 
     <uses-permission android:name="com.realwakka.gcm.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -56,6 +57,7 @@
                 <data android:mimeType="application/vnd.com.example.android.beam" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register" >

@@ -169,6 +169,7 @@ public class AcceptActivity extends Activity {
 
         @Override
         protected void onPostExecute(String s) {
+            finish();
             super.onPostExecute(s);
 
         }

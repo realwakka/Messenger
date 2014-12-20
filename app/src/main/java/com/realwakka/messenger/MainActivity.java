@@ -5,20 +5,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -39,6 +36,19 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("MainActivity","onCreate");
+        Intent intent1 = getIntent();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
+            Parcelable[] rawMsgs = intent1.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage[] msgs;
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++) {
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                    Log.d("MainActivity",msgs[i].toString());
+                }
+            }
+        }
 
         // ViewPager and its adapters use support library
         // fragments, so use getSupportFragmentManager.
@@ -57,6 +67,12 @@ public class MainActivity extends FragmentActivity {
             startActivityForResult(intent,REGISTER_REQUEST);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("MainActivity","onResume");
     }
 
     @Override
@@ -91,24 +107,19 @@ public class MainActivity extends FragmentActivity {
                     fragment = new FriendsFragment();
                     break;
                 case 1:
-                    fragment = new FriendsFragment();
-                    break;
-                case 2:
                     fragment = new NFCFragment();
                     break;
+
             }
 
             Bundle args = new Bundle();
-
             fragment.setArguments(args);
-
-
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override

@@ -31,9 +31,7 @@ import java.nio.charset.Charset;
 public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessageCallback,
         NfcAdapter.OnNdefPushCompleteCallback {
     NfcAdapter mNfcAdapter;
-    private PendingIntent mPendingIntent;
-    private IntentFilter[] mIntentFilters;
-    private String[][] mNFCTechLists;
+
     private static final int MESSAGE_SENT = 1;
     TextView mTextView;
     public NFCFragment() {
@@ -50,12 +48,14 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
-//        mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
-//        mNfcAdapter.setOnNdefPushCompleteCallback(this, getActivity());
+        mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
+        mNfcAdapter.setOnNdefPushCompleteCallback(this, getActivity());
 
-        mNfcAdapter.setNdefPushMessage(getNdefMessage(),getActivity());
+//        mNfcAdapter.setNdefPushMessage(getNdefMessage(),getActivity());
 
-        
+        String str = getString(R.string.nfc_instruction1);
+
+        mTextView.setText(str);
 
         Log.d("NFCFragment","NFC READY");
         return v;
@@ -66,19 +66,7 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         super.onPause();
 
     }
-    private NdefMessage getNdefMessage(){
-        Option option = Option.load(getActivity());
 
-        NfcData nfcData = new NfcData(option.getRegid(),option.getName());
-
-        String text = nfcData.toJSON();
-        NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMimeRecord(
-                        "application/vnd.com.example.android.beam", text.getBytes())
-
-                });
-        return msg;
-    }
     @Override
     public void onResume() {
         super.onResume();
@@ -88,7 +76,6 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
     public NdefMessage createNdefMessage(NfcEvent event) {
 
         Option option = Option.load(getActivity());
-
         NfcData nfcData = new NfcData(option.getRegid(),option.getName());
 
         String text = nfcData.toJSON();
@@ -97,6 +84,10 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
                         "application/vnd.com.example.android.beam", text.getBytes())
 
                 });
+
+        String str = getString(R.string.nfc_instruction2);
+        mTextView.setText(str);
+
         return msg;
     }
 
@@ -106,6 +97,9 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         // callback occurs, because it happens from a binder thread
         mHandler.obtainMessage(MESSAGE_SENT).sendToTarget();
 
+        String str = getString(R.string.nfc_instruction1);
+        mTextView.setText(str);
+
 
     }
     private final Handler mHandler = new Handler() {
@@ -113,7 +107,7 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_SENT:
-                    Toast.makeText(getActivity(), "Message sent!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Invitation send", Toast.LENGTH_LONG).show();
                     break;
             }
         }

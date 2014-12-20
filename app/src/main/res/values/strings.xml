@@ -13,4 +13,6 @@
     <string name="project_apikey">AIzaSyDdYYZyScZoQ7REysA85CDYMNWu7hmhjG4</string>
     <string name="title_activity_nfc">NfcActivity</string>
 
+    <string name="nfc_instruction1">Please place it behind a friend\'s cell phone</string>
+    <string name="nfc_instruction2">Click here to invite friend</string>
 </resources>
