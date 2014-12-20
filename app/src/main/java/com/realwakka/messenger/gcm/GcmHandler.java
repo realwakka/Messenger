@@ -74,7 +74,12 @@ public class GcmHandler extends IntentService {
                         case Chat.TYPE_MESSAGE:
                             processTypeMessage(extras);
                             break;
+                        case Chat.TYPE_KEY_REQUEST:
 
+                            break;
+                        case Chat.TYPE_KEY_RESPONSE:
+
+                            break;
                     }
 
                     Log.i(TAG, "Received: " + extras.toString());

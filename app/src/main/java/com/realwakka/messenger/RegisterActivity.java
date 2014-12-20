@@ -42,7 +42,7 @@ public class RegisterActivity extends Activity {
     }
     private class GetRegIdTask extends AsyncTask<Void,Void,String> {
         GoogleCloudMessaging gcm;
-1
+
         @Override
         protected String doInBackground(Void... params) {
             String regid = null;

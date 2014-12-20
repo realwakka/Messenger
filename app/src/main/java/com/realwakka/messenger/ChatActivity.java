@@ -25,6 +25,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.Option;
+import com.realwakka.messenger.gcm.GcmUtils;
 import com.realwakka.messenger.sqlite.ChatsDataSource;
 
 import org.apache.http.HttpEntity;
@@ -68,7 +69,7 @@ public class ChatActivity extends Activity{
 
     ChatsDataSource mDataSource;
 
-
+    String mApiKey;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -111,6 +112,8 @@ public class ChatActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        mApiKey = getString(R.string.project_apikey);
+
         mDataSource = new ChatsDataSource(this);
         mDataSource.open();
 
@@ -128,6 +131,7 @@ public class ChatActivity extends Activity{
         mAdapter = new ChatAdapter(mChatList);
         mChatView.setAdapter(mAdapter);
         mEditText = (EditText)findViewById(R.id.chat_chat);
+
 
 
 
@@ -192,39 +196,42 @@ public class ChatActivity extends Activity{
         }
     }
 
+    private class RequestKeyTask extends AsyncTask<String,String,String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                Chat chat = new Chat(Chat.TYPE_KEY_REQUEST,mOption.getRegid(),mFriend.getRegid(),"",new Date());
+                String responseAsString = GcmUtils.sendChat(chat,mApiKey);
+                Log.d("ChatActivity",responseAsString);
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            refreshChatList();
+            mEditText.setText("");
+        }
+    }
+
     private class SendChatTask extends AsyncTask<String,String,String>{
         @Override
         protected String doInBackground(String... params) {
             try {
-                String apiKey = getString(R.string.project_apikey);
 
-                // 1. URL
-                HttpClient httpclient = new DefaultHttpClient();
-                URL url = new URL("https://android.googleapis.com/gcm/send");
-                HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
-                post.addHeader("Content-Type", "application/json; charset=UTF-8");
-                post.addHeader("Authorization", "key=" + apiKey);
                 String encoded = URLEncoder.encode(params[0],"UTF-8");
 
                 Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encoded, new Date());
                 Chat decoded = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),params[0], new Date());
 
-                JSONObject obj = new JSONObject();
-
-                JSONArray reg_ids = new JSONArray();
-                reg_ids.put(mFriend.getRegid());
-
-                obj.put("registration_ids",reg_ids);
-                obj.put("data",chat.toJSONObject());
-                Log.d("ChatActivity",obj.toString());
-                StringEntity stringEntity = new StringEntity(obj.toString());
-
-                post.setEntity(stringEntity);
-
-                HttpResponse response = httpclient.execute(post);
-                HttpEntity entity = response.getEntity();
-
-                String responseAsString = EntityUtils.toString(entity);
+                String responseAsString = GcmUtils.sendChat(chat,mApiKey);
                 Log.d("ChatActivity",responseAsString);
 
                 mDataSource.addChat(decoded);

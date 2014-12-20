@@ -23,6 +23,10 @@ public class Chat {
 
     public static final int TYPE_ACCEPT=1;
     public static final int TYPE_MESSAGE=0;
+    public static final int TYPE_KEY_REQUEST=2;
+    public static final int TYPE_KEY_RESPONSE=3;
+
+
 
     public Chat(int type, String from_reg, String to_reg, String text, Date date) {
         this.type = type;
