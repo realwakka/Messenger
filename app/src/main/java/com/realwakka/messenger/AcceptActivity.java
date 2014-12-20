@@ -9,21 +9,38 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.NfcF;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.NfcData;
+import com.realwakka.messenger.data.Option;
 import com.realwakka.messenger.sqlite.FriendsDataSource;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Date;
 
 
 public class AcceptActivity extends Activity {
@@ -33,36 +50,28 @@ public class AcceptActivity extends Activity {
     private IntentFilter[] mIntentFilters;
     private String[][] mNFCTechLists;
 
+    private Option mOption;
+    private NfcData mReceivedData;
+
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-
         setContentView(R.layout.activity_accept);
+
+        mOption = Option.load(this);
+
+        if(mOption ==null){
+            finish();
+        }
+
         mTextView = (TextView)findViewById(R.id.accept_text);
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        if (mNfcAdapter != null) {
-            mTextView.setText("Read an NFC tag");
-        } else {
-            mTextView.setText("This phone is not NFC enabled.");
-        }
-
-        // create an intent with tag data and deliver to this activity
-        mPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
-
-        // set an intent filter for all MIME data
-        IntentFilter ndefIntent = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        try {
-            ndefIntent.addDataType("*/*");
-            mIntentFilters = new IntentFilter[] { ndefIntent };
-        } catch (Exception e) {
-            Log.e("TagDispatch", e.toString());
-        }
-
-        mNFCTechLists = new String[][] { new String[] { NfcF.class.getName() } };
-
         loadData(getIntent());
+
+        String str = "You've just received "+mReceivedData.getName()+"'s invitation. Do you want to accept this?";
+
+        mTextView.setText(str);
     }
     private String readText(NdefRecord record) throws UnsupportedEncodingException {
         Log.d("AcceptActivity","readText");
@@ -82,54 +91,86 @@ public class AcceptActivity extends Activity {
 
         // parse through all NDEF messages and their records and pick text type only
         Parcelable[] data = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-        if (data != null) {
-            Log.d("AcceptActivity","data not null");
-            try {
-                for (int i = 0; i < data.length; i++) {
-                    NdefRecord [] recs = ((NdefMessage)data[i]).getRecords();
-                    for (NdefRecord ndefRecord : recs) {
-                        s = s+readText(ndefRecord);
-                    }
-                }
-            } catch (Exception e) {
-                Log.e("TagDispatch", e.toString());
-            }
-        }else{
-            Log.d("AcceptActivity","data null");
+        NdefMessage msg = (NdefMessage) data[0];
+        try {
+            s = readText(msg.getRecords()[0]);
+        }catch(Exception e){
+            e.printStackTrace();
         }
+        s = new String(msg.getRecords()[0].getPayload());
 
         mTextView.setText(s);
 
-        NfcData nfcData = NfcData.fromJSON(s);
+        mReceivedData = NfcData.fromJSON(s);
 
+
+    }
+
+    public void saveToDB(NfcData data){
         FriendsDataSource dataSource = new FriendsDataSource(this);
         dataSource.open();
         byte[] b = new byte[]{};
-
-        dataSource.addFriend(new Friend(0,nfcData.getName(),new byte[]{},nfcData.getRegid()));
-
+        dataSource.addFriend(new Friend(0,data.getName(),new byte[]{},data.getRegid()));
         dataSource.close();
     }
-    @Override
-    public void onNewIntent(Intent intent) {
-        Log.d("AcceptActivity","onNewIntent");
-        loadData(intent);
+
+    public void onClick(View v){
+        switch(v.getId()){
+            case R.id.accept_ok:
+                new SendRegidTask().execute();
+                break;
+        }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private class SendRegidTask extends AsyncTask<String,String,String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                String apiKey = getString(R.string.project_apikey);
 
-        if (mNfcAdapter != null)
-            mNfcAdapter.enableForegroundDispatch(this, mPendingIntent, mIntentFilters, mNFCTechLists);
+                // 1. URL
+                HttpClient httpclient = new DefaultHttpClient();
+                URL url = new URL("https://android.googleapis.com/gcm/send");
+                HttpPost post = new HttpPost("https://android.googleapis.com/gcm/send");
+                post.addHeader("Content-Type", "application/json; charset=UTF-8");
+                post.addHeader("Authorization", "key=" + apiKey);
+
+                String encoded = URLEncoder.encode(mOption.getName(),"UTF-8");
+
+                Chat chat = new Chat(Chat.TYPE_ACCEPT,mOption.getRegid(),mReceivedData.getRegid(),encoded, new Date());
+
+                JSONObject obj = new JSONObject();
+
+                JSONArray reg_ids = new JSONArray();
+                reg_ids.put(mReceivedData.getRegid());
+
+                obj.put("registration_ids",reg_ids);
+                obj.put("data",chat.toJSONObject());
+                Log.d("ChatActivity",obj.toString());
+                StringEntity stringEntity = new StringEntity(obj.toString());
+
+                post.setEntity(stringEntity);
+
+                HttpResponse response = httpclient.execute(post);
+                HttpEntity entity = response.getEntity();
+
+                String responseAsString = EntityUtils.toString(entity);
+                Log.d("ChatActivity", responseAsString);
+
+                saveToDB(mReceivedData);
+            }
+
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+        }
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mNfcAdapter != null)
-            mNfcAdapter.disableForegroundDispatch(this);
-    }
-
 }

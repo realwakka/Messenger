@@ -26,6 +26,7 @@ public class FriendsFragment extends Fragment {
     ListView mListView;
     ArrayList<Friend> mFriendList;
     FriendsAdapter mAdapter;
+    FriendsDataSource mDataSource;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,17 +41,29 @@ public class FriendsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_friends, container, false);
         mListView = (ListView)v.findViewById(R.id.friends_list);
 
-        FriendsDataSource dataSource = new FriendsDataSource(getActivity());
-        dataSource.open();
-        mFriendList = dataSource.getFriendsList();
+        mDataSource = new FriendsDataSource(getActivity());
 
-        Log.d("FriendsFragment","Friend count" + mFriendList.size());
+
+        mListView.setOnItemClickListener(new FriendClickListener());
+
+
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDataSource.open();
+        mFriendList = mDataSource.getFriendsList();
 
         mAdapter = new FriendsAdapter(getActivity(),mFriendList);
         mListView.setAdapter(mAdapter);
+    }
 
-        mListView.setOnItemClickListener(new FriendClickListener());
-        return v;
+    @Override
+    public void onPause() {
+        super.onPause();
+        mDataSource.close();
     }
 
     class FriendClickListener implements AdapterView.OnItemClickListener{

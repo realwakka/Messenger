@@ -18,8 +18,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.realwakka.messenger.data.Chat;
+import com.realwakka.messenger.data.Friend;
+import com.realwakka.messenger.sqlite.ChatsDataSource;
+import com.realwakka.messenger.sqlite.FriendsDataSource;
 
 import java.net.URLDecoder;
+import java.util.Date;
 
 /**
  * Created by UCLAB_T60 on 2014-12-06.
@@ -29,11 +34,8 @@ public class GcmHandler extends IntentService {
     private String msg;
     private String TAG="GcmHandler";
 
-
-
     public GcmHandler(){
         super("GcmHandler");
-
     }
 
     @Override
@@ -65,7 +67,15 @@ public class GcmHandler extends IntentService {
                     // If it's a regular GCM message, do some work.
                 } else if (GoogleCloudMessaging.
                         MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                    processTypeMessage(extras);
+                    switch(Integer.parseInt(extras.getString("type"))){
+                        case Chat.TYPE_ACCEPT:
+                            processTypeAccept(extras);
+                            break;
+                        case Chat.TYPE_MESSAGE:
+                            processTypeMessage(extras);
+                            break;
+
+                    }
 
                     Log.i(TAG, "Received: " + extras.toString());
                 }
@@ -75,14 +85,35 @@ public class GcmHandler extends IntentService {
         }
 
     }
+    private void processTypeAccept(Bundle extras) throws Exception{
+        String encoded = extras.getString("text");
+        String decoded_name = URLDecoder.decode(encoded, "UTF-8");
+        String sender = extras.getString("from_reg");
+        String receiver = extras.getString("to_reg");
 
+        Friend friend = new Friend(0,decoded_name,new byte[]{},sender);
+        FriendsDataSource source = new FriendsDataSource(this);
+        source.open();
+        source.addFriend(friend);
+        source.close();
+
+    }
     private void processTypeMessage(Bundle extras) throws Exception{
         String encoded = extras.getString("text");
         String decoded_msg = URLDecoder.decode(encoded, "UTF-8");
         String sender = extras.getString("from_reg");
+        String receiver = extras.getString("to_reg");
 
         Intent intent = new Intent(sender);
         intent.putExtra("message", decoded_msg);
+
+        Chat chat = new Chat(0,sender,receiver,decoded_msg,new Date());
+
+
+        ChatsDataSource source = new ChatsDataSource(this);
+        source.open();
+        source.addChat(chat);
+        source.close();
 
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
         boolean result = manager.sendBroadcast(intent);

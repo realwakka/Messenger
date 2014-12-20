@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -70,14 +72,13 @@ public class ChatActivity extends Activity{
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Chat chat = new Chat(0,mFriend.getRegid(),mOption.getRegid(),intent.getStringExtra("message"),new Date());
-            processReceivedChat(chat);
+            refreshChatList();
 
         }
     };
-    private void processReceivedChat(Chat chat){
 
-        mDataSource.addChat(chat);
+
+    private void refreshChatList(){
 
         ArrayList<Chat> list = (ArrayList<Chat>)mDataSource.getAllChatsByRegid(mFriend.getRegid());
         mChatList.clear();
@@ -166,14 +167,26 @@ public class ChatActivity extends Activity{
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-
             LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.item_chat,null);
-            TextView textView = (TextView)v.findViewById(R.id.chat_chat);
+
+            RelativeLayout layout = (RelativeLayout)v.findViewById(R.id.chat_item);
+
+            TextView chatView = (TextView)v.findViewById(R.id.chat_chat);
+            TextView nameView = (TextView)v.findViewById(R.id.chat_name);
 
             Chat chat = list.get(position);
-            textView.setText(chat.getText());
-            Log.d("ChatActivity",chat.getText());
+            chatView.setText(chat.getText());
+
+            if(chat.getFrom_reg().equals(mFriend.getRegid())){
+                nameView.setText(mFriend.getName());
+                layout.setGravity(Gravity.LEFT);
+
+            }else{
+                nameView.setText(mOption.getName());
+                layout.setGravity(Gravity.RIGHT);
+            }
+
             return v;
         }
     }
@@ -191,7 +204,9 @@ public class ChatActivity extends Activity{
                 post.addHeader("Content-Type", "application/json; charset=UTF-8");
                 post.addHeader("Authorization", "key=" + apiKey);
                 String encoded = URLEncoder.encode(params[0],"UTF-8");
+
                 Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encoded, new Date());
+                Chat decoded = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),params[0], new Date());
 
                 JSONObject obj = new JSONObject();
 
@@ -205,12 +220,14 @@ public class ChatActivity extends Activity{
 
                 post.setEntity(stringEntity);
 
-
                 HttpResponse response = httpclient.execute(post);
                 HttpEntity entity = response.getEntity();
 
                 String responseAsString = EntityUtils.toString(entity);
                 Log.d("ChatActivity",responseAsString);
+
+                mDataSource.addChat(decoded);
+
             }
 
             catch (Exception e) {
@@ -220,6 +237,14 @@ public class ChatActivity extends Activity{
 
         }
 
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            refreshChatList();
+            mEditText.setText("");
+        }
     }
+
+
 
 }

@@ -40,9 +40,7 @@ public class FriendsDataSource {
         values.put(MySQLiteHelper.FRIENDS_COLUMN_REGID, friend.getRegid());
 
         long insertId = database.insert(MySQLiteHelper.TABLE_FRIENDS, null,values);
-
         friend.setId(insertId);
-
     }
     public String getFriendNameByRegid(String regid){
         Cursor cursor = database.query(MySQLiteHelper.TABLE_FRIENDS,

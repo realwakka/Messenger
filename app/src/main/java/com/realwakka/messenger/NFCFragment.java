@@ -1,7 +1,9 @@
 package com.realwakka.messenger;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -29,6 +31,9 @@ import java.nio.charset.Charset;
 public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessageCallback,
         NfcAdapter.OnNdefPushCompleteCallback {
     NfcAdapter mNfcAdapter;
+    private PendingIntent mPendingIntent;
+    private IntentFilter[] mIntentFilters;
+    private String[][] mNFCTechLists;
     private static final int MESSAGE_SENT = 1;
     TextView mTextView;
     public NFCFragment() {
@@ -45,13 +50,39 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
-        mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
-        mNfcAdapter.setOnNdefPushCompleteCallback(this, getActivity());
+//        mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
+//        mNfcAdapter.setOnNdefPushCompleteCallback(this, getActivity());
+
+        mNfcAdapter.setNdefPushMessage(getNdefMessage(),getActivity());
+
+        
 
         Log.d("NFCFragment","NFC READY");
         return v;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+    private NdefMessage getNdefMessage(){
+        Option option = Option.load(getActivity());
+
+        NfcData nfcData = new NfcData(option.getRegid(),option.getName());
+
+        String text = nfcData.toJSON();
+        NdefMessage msg = new NdefMessage(
+                new NdefRecord[] { createMimeRecord(
+                        "application/vnd.com.example.android.beam", text.getBytes())
+
+                });
+        return msg;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
@@ -94,13 +125,4 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
                 NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
         return mimeRecord;
     }
-
-    private void processIntent(Intent intent) {
-        Parcelable[] rawMsgs = intent.getParcelableArrayExtra(
-                NfcAdapter.EXTRA_NDEF_MESSAGES);
-        // only one message sent during the beam
-        NdefMessage msg = (NdefMessage) rawMsgs[0];
-        // record 0 contains the MIME type, record 1 is the AAR, if present
-    }
-
 }

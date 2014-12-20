@@ -21,8 +21,8 @@ public class Chat {
     private String text;
     private Date date;
 
-    public static final int TYPE_ACCEPT=0;
-    public static final int TYPE_MESSAGE=1;
+    public static final int TYPE_ACCEPT=1;
+    public static final int TYPE_MESSAGE=0;
 
     public Chat(int type, String from_reg, String to_reg, String text, Date date) {
         this.type = type;
