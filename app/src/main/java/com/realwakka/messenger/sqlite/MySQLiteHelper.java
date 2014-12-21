@@ -15,9 +15,10 @@ public class MySQLiteHelper extends SQLiteOpenHelper{
     public static final String FRIENDS_COLUMN_ID = "_id";
     public static final String FRIENDS_COLUMN_FRIEND = "friend";
     public static final String FRIENDS_COLUMN_REGID = "regid";
+    public static final String FRIENDS_COLUMN_PUBKEY="pub_key";
 
     private static final String FRIENDS_TABLE_CREATE="create table "+TABLE_FRIENDS+" ( "+FRIENDS_COLUMN_ID+" integer primary key autoincrement, " + FRIENDS_COLUMN_FRIEND
-            + " varchar(16)," + FRIENDS_COLUMN_REGID + " integer not null);";
+            + " varchar(16)," + FRIENDS_COLUMN_REGID + " integer not null,"+FRIENDS_COLUMN_PUBKEY+" blob);";
 
     public static final String TABLE_CHATS = "chats";
     public static final String CHATS_COLUMN_ID = "_id";
@@ -29,7 +30,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper{
     private static final String CHATS_TABLE_CREATE="create table "+TABLE_CHATS+" ( "+CHATS_COLUMN_ID+" integer primary key autoincrement, " + CHATS_COLUMN_SENDER
             + " integer not null," + CHATS_COLUMN_RECEIVER + " integer not null,"+ CHATS_COLUMN_TEXT + " text,"+CHATS_COLUMN_DATE+" varchar(20));";
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

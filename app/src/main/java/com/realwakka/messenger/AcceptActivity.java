@@ -24,6 +24,7 @@ import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.NfcData;
 import com.realwakka.messenger.data.Option;
+import com.realwakka.messenger.encryption.Translator;
 import com.realwakka.messenger.sqlite.FriendsDataSource;
 
 import org.apache.http.HttpEntity;
@@ -103,14 +104,14 @@ public class AcceptActivity extends Activity {
 
         mReceivedData = NfcData.fromJSON(s);
 
-
+        Log.d("AcceptActivity","Received NFC pubkey length"+mReceivedData.getPub_key().length);
     }
 
     public void saveToDB(NfcData data){
         FriendsDataSource dataSource = new FriendsDataSource(this);
         dataSource.open();
-        byte[] b = new byte[]{};
-        dataSource.addFriend(new Friend(0,data.getName(),new byte[]{},data.getRegid()));
+
+        dataSource.addFriend(new Friend(0,data.getName(),data.getPub_key(),data.getRegid()));
         dataSource.close();
     }
 
@@ -135,8 +136,10 @@ public class AcceptActivity extends Activity {
                 post.addHeader("Content-Type", "application/json; charset=UTF-8");
                 post.addHeader("Authorization", "key=" + apiKey);
 
-                String encoded = URLEncoder.encode(mOption.getName(),"UTF-8");
+                byte[] pub = Translator.getPublicKey(AcceptActivity.this).getEncoded();
+                NfcData data = new NfcData(mOption.getName(),mOption.getRegid(),pub);
 
+                String encoded = URLEncoder.encode(data.toJSON(),"UTF-8");
                 Chat chat = new Chat(Chat.TYPE_ACCEPT,mOption.getRegid(),mReceivedData.getRegid(),encoded, new Date());
 
                 JSONObject obj = new JSONObject();

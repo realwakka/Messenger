@@ -10,13 +10,22 @@ import org.json.JSONObject;
 public class NfcData {
     private String name;
     private String regid;
-
+    private byte[] pub_key;
 
     private static final String REGID_KEY="REGID";
 
-    public NfcData(String regid, String name) {
-        this.regid = regid;
+    public NfcData(String name, String regid, byte[] pub_key) {
         this.name = name;
+        this.regid = regid;
+        this.pub_key = pub_key;
+    }
+
+    public byte[] getPub_key() {
+        return pub_key;
+    }
+
+    public void setPub_key(byte[] pub_key) {
+        this.pub_key = pub_key;
     }
 
     public String getName() {

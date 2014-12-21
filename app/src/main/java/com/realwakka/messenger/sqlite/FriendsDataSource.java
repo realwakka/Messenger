@@ -20,7 +20,7 @@ public class FriendsDataSource {
     private SQLiteDatabase database;
     private MySQLiteHelper dbHelper;
     private String[] allColumns = { MySQLiteHelper.FRIENDS_COLUMN_ID,
-            MySQLiteHelper.FRIENDS_COLUMN_FRIEND,MySQLiteHelper.FRIENDS_COLUMN_REGID };
+            MySQLiteHelper.FRIENDS_COLUMN_FRIEND,MySQLiteHelper.FRIENDS_COLUMN_REGID,MySQLiteHelper.FRIENDS_COLUMN_PUBKEY };
 
     public FriendsDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
@@ -38,6 +38,7 @@ public class FriendsDataSource {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.FRIENDS_COLUMN_FRIEND, friend.getName());
         values.put(MySQLiteHelper.FRIENDS_COLUMN_REGID, friend.getRegid());
+        values.put(MySQLiteHelper.FRIENDS_COLUMN_PUBKEY,friend.getPubicKey());
 
         long insertId = database.insert(MySQLiteHelper.TABLE_FRIENDS, null,values);
         friend.setId(insertId);
@@ -49,6 +50,7 @@ public class FriendsDataSource {
         Friend friend = cursorToFriend(cursor);
         return friend.getName();
     }
+
     public ArrayList<Friend> getFriendsList(){
         ArrayList<Friend> list = new ArrayList<Friend>();
 
@@ -68,7 +70,7 @@ public class FriendsDataSource {
         return list;
     }
     private Friend cursorToFriend(Cursor cursor) {
-        return new Friend(cursor.getLong(0),cursor.getString(1),null,cursor.getString(2));
+        return new Friend(cursor.getLong(0),cursor.getString(1),cursor.getBlob(3),cursor.getString(2));
     }
 
 }

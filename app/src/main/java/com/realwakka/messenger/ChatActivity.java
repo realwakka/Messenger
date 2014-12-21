@@ -25,6 +25,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.Option;
+import com.realwakka.messenger.encryption.Translator;
 import com.realwakka.messenger.gcm.GcmUtils;
 import com.realwakka.messenger.sqlite.ChatsDataSource;
 
@@ -46,10 +47,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -227,8 +233,12 @@ public class ChatActivity extends Activity{
             try {
 
                 String encoded = URLEncoder.encode(params[0],"UTF-8");
+                byte[] b_pub = mFriend.getPubicKey();
+                Log.d("ChatActivity","PublicKey length"+b_pub.length);
+                PublicKey pub_key = KeyFactory.getInstance(Translator.ALGORITHM).generatePublic(new X509EncodedKeySpec(b_pub));
+                String encrypted = new String(Translator.encryptString(encoded,pub_key));
 
-                Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encoded, new Date());
+                Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encrypted, new Date());
                 Chat decoded = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),params[0], new Date());
 
                 String responseAsString = GcmUtils.sendChat(chat,mApiKey);

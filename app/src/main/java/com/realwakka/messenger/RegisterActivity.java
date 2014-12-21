@@ -64,8 +64,10 @@ public class RegisterActivity extends Activity {
                 } else {
                     setResult(RESULT_OK);
                     registerOption(s);
-                    if(!Translator.areKeysPresent())
-                        Translator.generateKey();
+                    if(!Translator.areKeysPresent()) {
+                        Log.d("RegisterActivity","Generating KEY");
+                        Translator.generateKey(RegisterActivity.this);
+                    }
                 }
             }catch(Exception e){
                 e.printStackTrace();

@@ -55,7 +55,7 @@ public class NfcActivity extends Activity implements NfcAdapter.CreateNdefMessag
 
         Option option = Option.load(this);
 
-        NfcData nfcData = new NfcData(option.getRegid(),option.getName());
+        NfcData nfcData = new NfcData(option.getRegid(),option.getName(),null);
 
         String text = nfcData.toJSON();
         NdefMessage msg = new NdefMessage(

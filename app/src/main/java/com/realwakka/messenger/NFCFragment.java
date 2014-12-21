@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.realwakka.messenger.data.NfcData;
 import com.realwakka.messenger.data.Option;
+import com.realwakka.messenger.encryption.Translator;
 
 import java.nio.charset.Charset;
 
@@ -74,34 +75,33 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
+        NdefMessage msg = null;
+        try{
+            Option option = Option.load(getActivity());
+            byte[] pub_key = Translator.getPublicKey(getActivity()).getEncoded();
+            NfcData nfcData = new NfcData(option.getName(),option.getRegid(),pub_key);
 
-        Option option = Option.load(getActivity());
-        NfcData nfcData = new NfcData(option.getRegid(),option.getName());
+            String text = nfcData.toJSON();
+            msg = new NdefMessage(
+                    new NdefRecord[] { createMimeRecord(
+                            "application/vnd.com.example.android.beam", text.getBytes())
+                    });
 
-        String text = nfcData.toJSON();
-        NdefMessage msg = new NdefMessage(
-                new NdefRecord[] { createMimeRecord(
-                        "application/vnd.com.example.android.beam", text.getBytes())
-
-                });
-
-        String str = getString(R.string.nfc_instruction2);
-        mTextView.setText(str);
-
+            String str = getString(R.string.nfc_instruction2);
+//            mTextView.setText(str);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return msg;
     }
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
-        // A handler is needed to send messages to the activity when this
-        // callback occurs, because it happens from a binder thread
         mHandler.obtainMessage(MESSAGE_SENT).sendToTarget();
-
         String str = getString(R.string.nfc_instruction1);
-        mTextView.setText(str);
-
-
+//        mTextView.setText(str);
     }
+
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

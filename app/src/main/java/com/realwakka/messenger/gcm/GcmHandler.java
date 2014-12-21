@@ -20,10 +20,13 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
+import com.realwakka.messenger.data.NfcData;
+import com.realwakka.messenger.encryption.Translator;
 import com.realwakka.messenger.sqlite.ChatsDataSource;
 import com.realwakka.messenger.sqlite.FriendsDataSource;
 
 import java.net.URLDecoder;
+import java.security.PrivateKey;
 import java.util.Date;
 
 /**
@@ -91,12 +94,14 @@ public class GcmHandler extends IntentService {
 
     }
     private void processTypeAccept(Bundle extras) throws Exception{
-        String encoded = extras.getString("text");
-        String decoded_name = URLDecoder.decode(encoded, "UTF-8");
-        String sender = extras.getString("from_reg");
-        String receiver = extras.getString("to_reg");
 
-        Friend friend = new Friend(0,decoded_name,new byte[]{},sender);
+
+        String encoded = extras.getString("text");
+        String decoded_json = URLDecoder.decode(encoded, "UTF-8");
+
+        NfcData data =  NfcData.fromJSON(decoded_json);
+        Log.d("GcmHandler","Received pub key length"+data.getPub_key().length);
+        Friend friend = new Friend(0,data.getName(),data.getPub_key(),data.getRegid());
         FriendsDataSource source = new FriendsDataSource(this);
         source.open();
         source.addFriend(friend);
@@ -104,8 +109,11 @@ public class GcmHandler extends IntentService {
 
     }
     private void processTypeMessage(Bundle extras) throws Exception{
-        String encoded = extras.getString("text");
-        String decoded_msg = URLDecoder.decode(encoded, "UTF-8");
+        String encrypted = extras.getString("text");
+        PrivateKey privateKey = Translator.getPrivateKey(this);
+
+        String decrypted = Translator.decryptString(encrypted.getBytes(),privateKey);
+        String decoded_msg = URLDecoder.decode(decrypted, "UTF-8");
         String sender = extras.getString("from_reg");
         String receiver = extras.getString("to_reg");
 
