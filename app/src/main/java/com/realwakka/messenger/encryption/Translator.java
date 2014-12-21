@@ -1,7 +1,10 @@
 package com.realwakka.messenger.encryption;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +12,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyPair;
@@ -17,6 +22,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import javax.crypto.BadPaddingException;
@@ -30,6 +36,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Translator {
     public static final String ALGORITHM = "RSA";
+
     public static final String PRIVATE_KEY_FILE = "/keys/private.key";
     public static final String PUBLIC_KEY_FILE = "/keys/public.key";
     public static final String KEY_DIR="keys";
@@ -44,6 +51,15 @@ public class Translator {
         return (PrivateKey)inputStream.readObject();
     }
 
+    public static String encryptStringBase64(String text,PublicKey key) throws Exception{
+        byte[] b = encryptString(text,key);
+        return Base64.encodeToString(b,Base64.DEFAULT);
+    }
+
+    public static String decryptStringBase64(String text,PrivateKey key) throws Exception{
+        String str = decryptString(Base64.decode(text,Base64.DEFAULT),key);
+        return str;
+    }
 
     public static byte[] encryptString(String text,PublicKey key)
             throws Exception {
@@ -112,11 +128,25 @@ public class Translator {
         PrivateKey privateKey = getPrivateKey(context);
 
         String encoded = URLEncoder.encode(str,"UTF-8");
+
         byte[] b_encrypted = encryptString(encoded,publicKey);
 
-        String s_encrypted = new String(b_encrypted);
+        String s_encrypted = Base64.encodeToString(b_encrypted,Base64.DEFAULT);
 
-        return true;
+        byte[] bb_encrypted = Base64.decode(s_encrypted,Base64.DEFAULT);
+
+        Log.d("Translator","B"+Arrays.toString(b_encrypted));
+        Log.d("Translator","BB"+Arrays.toString(bb_encrypted));
+
+
+
+
+            String decrypted = decryptString(bb_encrypted,privateKey);
+
+        String decoded = URLDecoder.decode(decrypted,"UTF-8");
+
+        return str.equals(decoded);
+
 
 
     }

@@ -1,6 +1,7 @@
 package com.realwakka.messenger;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -62,8 +63,6 @@ import java.util.List;
 
 
 public class ChatActivity extends Activity{
-    public static String STATE="";
-
     ListView mChatView;
     ChatAdapter mAdapter;
     ArrayList<Chat> mChatList;
@@ -102,7 +101,7 @@ public class ChatActivity extends Activity{
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter(mFriend.getRegid()));
         mDataSource.open();
-        STATE=mFriend.getRegid();
+
     }
 
     @Override
@@ -110,7 +109,7 @@ public class ChatActivity extends Activity{
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         mDataSource.close();
-        STATE="PAUSED";
+
     }
 
     @Override
@@ -122,11 +121,15 @@ public class ChatActivity extends Activity{
 
         mDataSource = new ChatsDataSource(this);
         mDataSource.open();
+        if(getIntent().getBooleanExtra("FROM_NOTIFICATION",false)){
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.cancel(getResources().getInteger(R.integer.notification_id));
+        }
 
         String friend_json = getIntent().getStringExtra("FRIEND");
         mFriend = Friend.fromJSON(friend_json);
         mOption = Option.load(this);
-
 
         mChatView = (ListView)findViewById(R.id.chat_list);
 
@@ -136,6 +139,8 @@ public class ChatActivity extends Activity{
 
         mAdapter = new ChatAdapter(mChatList);
         mChatView.setAdapter(mAdapter);
+
+        mChatView.setSelection(mChatList.size());
         mEditText = (EditText)findViewById(R.id.chat_chat);
 
 
@@ -231,12 +236,11 @@ public class ChatActivity extends Activity{
         @Override
         protected String doInBackground(String... params) {
             try {
-
                 String encoded = URLEncoder.encode(params[0],"UTF-8");
                 byte[] b_pub = mFriend.getPubicKey();
                 Log.d("ChatActivity","PublicKey length"+b_pub.length);
                 PublicKey pub_key = KeyFactory.getInstance(Translator.ALGORITHM).generatePublic(new X509EncodedKeySpec(b_pub));
-                String encrypted = new String(Translator.encryptString(encoded,pub_key));
+                String encrypted = Translator.encryptStringBase64(encoded,pub_key);
 
                 Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encrypted, new Date());
                 Chat decoded = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),params[0], new Date());

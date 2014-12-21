@@ -3,6 +3,7 @@ package com.realwakka.messenger.gcm;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -13,11 +14,14 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.realwakka.messenger.ChatActivity;
+import com.realwakka.messenger.R;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.NfcData;
@@ -34,9 +38,8 @@ import java.util.Date;
  */
 public class GcmHandler extends IntentService {
     private Handler handler;
-    private String msg;
     private String TAG="GcmHandler";
-
+    private Chat mReceivedChat;
     public GcmHandler(){
         super("GcmHandler");
     }
@@ -62,11 +65,10 @@ public class GcmHandler extends IntentService {
                 if (GoogleCloudMessaging.
                         MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
 
-                    sendNotification("Send error: " + extras.toString());
+
                 } else if (GoogleCloudMessaging.
                         MESSAGE_TYPE_DELETED.equals(messageType)) {
-                    sendNotification("Deleted messages on server: " +
-                            extras.toString());
+
                     // If it's a regular GCM message, do some work.
                 } else if (GoogleCloudMessaging.
                         MESSAGE_TYPE_MESSAGE.equals(messageType)) {
@@ -112,7 +114,7 @@ public class GcmHandler extends IntentService {
         String encrypted = extras.getString("text");
         PrivateKey privateKey = Translator.getPrivateKey(this);
 
-        String decrypted = Translator.decryptString(encrypted.getBytes(),privateKey);
+        String decrypted = Translator.decryptStringBase64(encrypted, privateKey);
         String decoded_msg = URLDecoder.decode(decrypted, "UTF-8");
         String sender = extras.getString("from_reg");
         String receiver = extras.getString("to_reg");
@@ -122,27 +124,64 @@ public class GcmHandler extends IntentService {
 
         Chat chat = new Chat(0,sender,receiver,decoded_msg,new Date());
 
-
         ChatsDataSource source = new ChatsDataSource(this);
         source.open();
         source.addChat(chat);
         source.close();
 
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
-        boolean result = manager.sendBroadcast(intent);
 
-        sendNotification(decoded_msg);
+        if(!manager.sendBroadcast(intent)){
+            sendNotification(chat);
+        }
 
-        Log.d("GcmHandler","sendBroadcast : "+result);
     }
-    private void sendNotification(String msg) {
-        this.msg = msg;
+    private void sendNotification(Chat chat) {
+
+        mReceivedChat = chat;
+
         handler.post(new Runnable() {
             public void run() {
+                Context context = getApplicationContext();
 
-                Toast.makeText(getApplicationContext(),GcmHandler.this.msg , Toast.LENGTH_LONG).show();
+                Chat chat = mReceivedChat;
+
+                FriendsDataSource source = new FriendsDataSource(getApplicationContext());
+                source.open();
+                Friend friend = source.getFriendByRegid(chat.getFrom_reg());
+                source.close();
+
+                String toastText = friend.getName() +":"+chat.getText();
+                Toast.makeText(getApplicationContext(),toastText , Toast.LENGTH_LONG).show();
+
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.ic_launcher)
+                                .setContentTitle(friend.getName())
+                                .setContentText(chat.getText());
+
+                Intent resultIntent = new Intent(getApplicationContext(), ChatActivity.class);
+                resultIntent.putExtra("FRIEND",friend.toJSON());
+                resultIntent.putExtra("FROM_NOTIFICATION",true);
+                TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+
+                stackBuilder.addParentStack(ChatActivity.class);
+
+                stackBuilder.addNextIntent(resultIntent);
+                PendingIntent resultPendingIntent =
+                        stackBuilder.getPendingIntent(
+                                0,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+                mBuilder.setContentIntent(resultPendingIntent);
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                mNotificationManager.notify(getResources().getInteger(R.integer.notification_id), mBuilder.build());
             }
+
         });
     }
+
 
 }

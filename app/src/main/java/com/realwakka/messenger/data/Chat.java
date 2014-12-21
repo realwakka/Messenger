@@ -19,6 +19,7 @@ public class Chat {
     private String from_reg;
     private String to_reg;
     private String text;
+
     private Date date;
 
     public static final int TYPE_ACCEPT=1;

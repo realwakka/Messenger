@@ -1,9 +1,12 @@
 package com.realwakka.messenger;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +30,12 @@ public class FriendsFragment extends Fragment {
     ArrayList<Friend> mFriendList;
     FriendsAdapter mAdapter;
     FriendsDataSource mDataSource;
+    BroadcastReceiver mNewFriendReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshFriendsList();
+        }
+    };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +43,14 @@ public class FriendsFragment extends Fragment {
 
     }
 
+
+
+    private void refreshFriendsList(){
+        mFriendList = mDataSource.getFriendsList();
+
+        mAdapter = new FriendsAdapter(getActivity(),mFriendList);
+        mListView.setAdapter(mAdapter);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -42,8 +59,6 @@ public class FriendsFragment extends Fragment {
         mListView = (ListView)v.findViewById(R.id.friends_list);
 
         mDataSource = new FriendsDataSource(getActivity());
-
-
         mListView.setOnItemClickListener(new FriendClickListener());
 
 
@@ -54,16 +69,17 @@ public class FriendsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mDataSource.open();
-        mFriendList = mDataSource.getFriendsList();
 
-        mAdapter = new FriendsAdapter(getActivity(),mFriendList);
-        mListView.setAdapter(mAdapter);
+        refreshFriendsList();
+        IntentFilter intentFilter = new IntentFilter("com.realwakka.messenger.RefreshFriends");
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mNewFriendReceiver,intentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mDataSource.close();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mNewFriendReceiver);
     }
 
     class FriendClickListener implements AdapterView.OnItemClickListener{
