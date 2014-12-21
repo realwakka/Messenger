@@ -198,10 +198,15 @@ public class ChatActivity extends Activity{
 
             if(chat.getFrom_reg().equals(mFriend.getRegid())){
                 nameView.setText(mFriend.getName());
+                nameView.setGravity(Gravity.LEFT);
+                chatView.setGravity(Gravity.LEFT);
                 layout.setGravity(Gravity.LEFT);
+
 
             }else{
                 nameView.setText(mOption.getName());
+                nameView.setGravity(Gravity.RIGHT);
+                chatView.setGravity(Gravity.RIGHT);
                 layout.setGravity(Gravity.RIGHT);
             }
 
