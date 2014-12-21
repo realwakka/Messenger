@@ -21,5 +21,6 @@
     <string-array name="tab_title">
         <item>Friends</item>
         <item>AddFriend</item>
+        <item>Options</item>
     </string-array>
 </resources>

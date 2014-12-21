@@ -136,6 +136,9 @@ public class MainActivity extends FragmentActivity {
                 case 1:
                     fragment = new NFCFragment();
                     break;
+                case 2:
+                    fragment = new OptionFragment();
+                    break;
 
             }
 
