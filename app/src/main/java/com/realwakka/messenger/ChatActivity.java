@@ -143,7 +143,7 @@ public class ChatActivity extends Activity{
         mChatView.setSelection(mChatList.size());
         mEditText = (EditText)findViewById(R.id.chat_chat);
 
-
+        getActionBar().setTitle(mFriend.getName());
 
 
     }
@@ -152,8 +152,10 @@ public class ChatActivity extends Activity{
         switch(v.getId()){
             case R.id.chat_send:
                 String msg = mEditText.getText().toString();
-                mCurrentSendTask = new SendChatTask();
-                mCurrentSendTask.execute(msg);
+                if(msg.length()>0) {
+                    mCurrentSendTask = new SendChatTask();
+                    mCurrentSendTask.execute(msg);
+                }
                 break;
         }
     }

@@ -95,6 +95,13 @@ public class FriendsFragment extends Fragment {
         }
     }
 
+    class FriendLongClickListener implements AdapterView.OnItemLongClickListener{
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            return false;
+        }
+    }
+
     class FriendsAdapter extends BaseAdapter{
         Context context;
         ArrayList<Friend> list;

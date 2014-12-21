@@ -29,6 +29,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat" >
         </activity>

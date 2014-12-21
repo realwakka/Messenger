@@ -2,6 +2,7 @@ package com.realwakka.messenger;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,26 +33,15 @@ public class MainActivity extends FragmentActivity {
     ViewPager mViewPager;
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     private final int REGISTER_REQUEST=120;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity","onCreate");
-        Intent intent1 = getIntent();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
-            Parcelable[] rawMsgs = intent1.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage[] msgs;
-            if (rawMsgs != null) {
-                msgs = new NdefMessage[rawMsgs.length];
-                for (int i = 0; i < rawMsgs.length; i++) {
-                    msgs[i] = (NdefMessage) rawMsgs[i];
-                    Log.d("MainActivity",msgs[i].toString());
-                }
-            }
-        }
 
-        // ViewPager and its adapters use support library
-        // fragments, so use getSupportFragmentManager.
         mDemoCollectionPagerAdapter =
                 new DemoCollectionPagerAdapter(
                         getSupportFragmentManager());
@@ -60,12 +50,31 @@ public class MainActivity extends FragmentActivity {
 
 
         final ActionBar actionBar = getActionBar();
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         Option option = Option.load(this);
         if(option==null){
             Intent intent = new Intent(this,RegisterActivity.class);
             startActivityForResult(intent,REGISTER_REQUEST);
         }
+
+        for (int i = 0; i < 2; i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(mDemoCollectionPagerAdapter.getPageTitle(i))
+                            .setTabListener(new CustomTabListener()));
+        }
+
+        mViewPager.setOnPageChangeListener(
+                new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        // When swiping between pages, select the
+                        // corresponding tab.
+                        getActionBar().setSelectedNavigationItem(position);
+                    }
+                });
+
+
 
     }
 
@@ -89,6 +98,24 @@ public class MainActivity extends FragmentActivity {
                     finish();
                 }
                 break;
+        }
+    }
+
+    class CustomTabListener implements ActionBar.TabListener{
+        @Override
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+            mViewPager.setCurrentItem(tab.getPosition());
+        }
+
+        @Override
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+        }
+
+        @Override
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+
         }
     }
 
@@ -124,7 +151,8 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "OBJECT " + (position + 1);
+            String[] titles = getResources().getStringArray(R.array.tab_title);
+            return titles[position];
         }
     }
 

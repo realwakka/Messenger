@@ -17,4 +17,9 @@
     <string name="nfc_instruction2">Click here to invite friend</string>
 
     <integer name="notification_id">23412</integer>
+
+    <string-array name="tab_title">
+        <item>Friends</item>
+        <item>AddFriend</item>
+    </string-array>
 </resources>
