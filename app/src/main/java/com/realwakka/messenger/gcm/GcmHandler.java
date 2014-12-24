@@ -40,6 +40,7 @@ public class GcmHandler extends IntentService {
     private Handler handler;
     private String TAG="GcmHandler";
     private Chat mReceivedChat;
+    private Friend mFriend;
     public GcmHandler(){
         super("GcmHandler");
     }
@@ -111,28 +112,40 @@ public class GcmHandler extends IntentService {
 
     }
     private void processTypeMessage(Bundle extras) throws Exception{
-        String encrypted = extras.getString("text");
-        PrivateKey privateKey = Translator.getPrivateKey(this);
 
-        String decrypted = Translator.decryptStringBase64(encrypted, privateKey);
-        String decoded_msg = URLDecoder.decode(decrypted, "UTF-8");
+
         String sender = extras.getString("from_reg");
         String receiver = extras.getString("to_reg");
+        FriendsDataSource friendsDataSource = new FriendsDataSource(this);
+        friendsDataSource.open();
+        mFriend = friendsDataSource.getFriendByRegid(sender);
+        friendsDataSource.close();
 
-        Intent intent = new Intent(sender);
-        intent.putExtra("message", decoded_msg);
+        if(mFriend==null) {
+            Log.d("GcmHandler", "Someone send message");
+            return;
+        }else {
+            String encrypted = extras.getString("text");
+            PrivateKey privateKey = Translator.getPrivateKey(this);
+            String decrypted = Translator.decryptStringBase64(encrypted, privateKey);
+            String decoded_msg = URLDecoder.decode(decrypted, "UTF-8");
 
-        Chat chat = new Chat(0,sender,receiver,decoded_msg,new Date());
 
-        ChatsDataSource source = new ChatsDataSource(this);
-        source.open();
-        source.addChat(chat);
-        source.close();
+            Intent intent = new Intent(sender);
+            intent.putExtra("message", decoded_msg);
 
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+            Chat chat = new Chat(0, sender, receiver, decoded_msg, new Date());
 
-        if(!manager.sendBroadcast(intent)){
-            sendNotification(chat);
+            ChatsDataSource source = new ChatsDataSource(this);
+            source.open();
+            source.addChat(chat);
+            source.close();
+
+            LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+
+            if (!manager.sendBroadcast(intent)) {
+                sendNotification(chat);
+            }
         }
 
     }
@@ -145,11 +158,7 @@ public class GcmHandler extends IntentService {
                 Context context = getApplicationContext();
 
                 Chat chat = mReceivedChat;
-
-                FriendsDataSource source = new FriendsDataSource(getApplicationContext());
-                source.open();
-                Friend friend = source.getFriendByRegid(chat.getFrom_reg());
-                source.close();
+                Friend friend = mFriend;
 
                 String toastText = friend.getName() +":"+chat.getText();
                 Toast.makeText(getApplicationContext(),toastText , Toast.LENGTH_LONG).show();

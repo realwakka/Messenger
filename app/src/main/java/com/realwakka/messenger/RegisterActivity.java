@@ -37,7 +37,7 @@ public class RegisterActivity extends Activity {
 
 
     public void registerOption(String regid){
-        Option option = new Option(mEditText.getText().toString(),regid,true);
+        Option option = new Option(mEditText.getText().toString(),regid,true,true,true);
         option.save(this);
     }
     private class GetRegIdTask extends AsyncTask<Void,Void,String> {

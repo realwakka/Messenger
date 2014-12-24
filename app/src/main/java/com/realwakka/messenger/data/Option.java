@@ -12,14 +12,21 @@ import com.realwakka.messenger.R;
 public class Option {
     private String name;
     private String regid;
-    private boolean alarm;
+
+
+    private boolean sound;
+    private boolean vibration;
+    private boolean alarm_on_screen_off;
+
 
     private static final String PREF_KEY="OPTION";
 
-    public Option(String name, String regid, boolean alarm) {
+    public Option(String name, String regid, boolean sound, boolean vibration, boolean alarm_on_screen_off) {
         this.name = name;
         this.regid = regid;
-        this.alarm = alarm;
+        this.sound = sound;
+        this.vibration = vibration;
+        this.alarm_on_screen_off = alarm_on_screen_off;
     }
 
     public String getName() {
@@ -38,13 +45,7 @@ public class Option {
         this.regid = regid;
     }
 
-    public boolean isAlarm() {
-        return alarm;
-    }
 
-    public void setAlarm(boolean alarm) {
-        this.alarm = alarm;
-    }
 
     public void save(Context context){
         SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);

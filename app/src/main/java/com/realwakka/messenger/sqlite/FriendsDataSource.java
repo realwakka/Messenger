@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.realwakka.messenger.data.Friend;
 
@@ -42,11 +43,20 @@ public class FriendsDataSource {
         long insertId = database.insert(MySQLiteHelper.TABLE_FRIENDS, null,values);
         friend.setId(insertId);
     }
+
+
     public Friend getFriendByRegid(String regid){
         Cursor cursor = database.query(MySQLiteHelper.TABLE_FRIENDS,
                 allColumns, MySQLiteHelper.FRIENDS_COLUMN_REGID+"=?",new String[]{regid}, null, null, null);
-        cursor.moveToFirst();
-        return cursorToFriend(cursor);
+        if(cursor.getCount()==0){
+            Log.d("FriendsDataSource","Nonfriend REGID");
+            return null;
+
+        }else{
+            cursor.moveToFirst();
+            return cursorToFriend(cursor);
+        }
+
     }
 
     public ArrayList<Friend> getFriendsList(){

@@ -61,12 +61,10 @@
 
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/title_activity_register" >
+            android:label="@string/title_activity_register"
+            android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity
-            android:name=".NfcActivity"
-            android:label="@string/title_activity_nfc" >
-        </activity>
+
     </application>
 
 </manifest>

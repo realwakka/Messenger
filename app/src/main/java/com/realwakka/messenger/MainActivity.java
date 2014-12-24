@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity {
     ViewPager mViewPager;
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     private final int REGISTER_REQUEST=120;
-
+    String[] bar_titles;
 
 
     @Override
@@ -41,6 +41,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d("MainActivity","onCreate");
+        bar_titles = getResources().getStringArray(R.array.tab_title);
 
         mDemoCollectionPagerAdapter =
                 new DemoCollectionPagerAdapter(
@@ -57,7 +58,7 @@ public class MainActivity extends FragmentActivity {
             startActivityForResult(intent,REGISTER_REQUEST);
         }
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < bar_titles.length; i++) {
             actionBar.addTab(
                     actionBar.newTab()
                             .setText(mDemoCollectionPagerAdapter.getPageTitle(i))
@@ -149,7 +150,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return bar_titles.length;
         }
 
         @Override

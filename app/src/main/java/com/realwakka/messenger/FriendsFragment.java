@@ -1,5 +1,6 @@
 package com.realwakka.messenger;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,10 +40,9 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d("FriendsFragment","onCreate");
 
     }
-
 
 
     private void refreshFriendsList(){
@@ -61,7 +61,7 @@ public class FriendsFragment extends Fragment {
         mDataSource = new FriendsDataSource(getActivity());
         mListView.setOnItemClickListener(new FriendClickListener());
 
-
+        Log.d("FriendsFragment","onCreateView");
         return v;
     }
 
@@ -69,16 +69,23 @@ public class FriendsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mDataSource.open();
-
+        Log.d("FriendsFragment","onResume");
         refreshFriendsList();
         IntentFilter intentFilter = new IntentFilter("com.realwakka.messenger.RefreshFriends");
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mNewFriendReceiver,intentFilter);
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d("FriendsFragment","onAttach");
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         mDataSource.close();
+        Log.d("FriendsFragment","onPause");
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mNewFriendReceiver);
     }
 
