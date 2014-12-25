@@ -29,6 +29,31 @@ public class Option {
         this.alarm_on_screen_off = alarm_on_screen_off;
     }
 
+
+    public boolean isSound() {
+        return sound;
+    }
+
+    public void setSound(boolean sound) {
+        this.sound = sound;
+    }
+
+    public boolean isVibration() {
+        return vibration;
+    }
+
+    public void setVibration(boolean vibration) {
+        this.vibration = vibration;
+    }
+
+    public boolean isAlarm_on_screen_off() {
+        return alarm_on_screen_off;
+    }
+
+    public void setAlarm_on_screen_off(boolean alarm_on_screen_off) {
+        this.alarm_on_screen_off = alarm_on_screen_off;
+    }
+
     public String getName() {
         return name;
     }

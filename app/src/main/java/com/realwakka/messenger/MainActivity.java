@@ -74,21 +74,12 @@ public class MainActivity extends FragmentActivity {
                         getActionBar().setSelectedNavigationItem(position);
                     }
                 });
-
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d("MainActivity","onResume");
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Log.d("MainActivity","NewIntent");
     }
 
     @Override
@@ -106,6 +97,7 @@ public class MainActivity extends FragmentActivity {
         @Override
         public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
             mViewPager.setCurrentItem(tab.getPosition());
+
         }
 
         @Override
@@ -124,6 +116,7 @@ public class MainActivity extends FragmentActivity {
         public DemoCollectionPagerAdapter(FragmentManager fm) {
             super(fm);
         }
+
 
         @Override
         public Fragment getItem(int i) {
@@ -163,6 +156,3 @@ public class MainActivity extends FragmentActivity {
 
 
 }
-
-
-
