@@ -35,6 +35,22 @@ public class MainActivity extends FragmentActivity {
     private final int REGISTER_REQUEST=120;
     String[] bar_titles;
 
+    ViewPager.SimpleOnPageChangeListener PageChangeListener = new ViewPager.SimpleOnPageChangeListener(){
+        int currentPosition = 0;
+
+        @Override
+        public void onPageSelected(int newPosition) {
+
+            FragmentLifecycle fragmentToShow = (FragmentLifecycle)mDemoCollectionPagerAdapter.getItem(newPosition);
+            fragmentToShow.onResumeFragment();
+
+            FragmentLifecycle fragmentToHide = (FragmentLifecycle)mDemoCollectionPagerAdapter.getItem(currentPosition);
+            fragmentToHide.onPauseFragment();
+
+            currentPosition = newPosition;
+            getActionBar().setSelectedNavigationItem(newPosition);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,15 +81,7 @@ public class MainActivity extends FragmentActivity {
                             .setTabListener(new CustomTabListener()));
         }
 
-        mViewPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                        getActionBar().setSelectedNavigationItem(position);
-                    }
-                });
+        mViewPager.setOnPageChangeListener(PageChangeListener);
     }
 
     @Override
@@ -113,6 +121,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     class DemoCollectionPagerAdapter extends FragmentStatePagerAdapter {
+
         public DemoCollectionPagerAdapter(FragmentManager fm) {
             super(fm);
         }

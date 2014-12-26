@@ -30,7 +30,7 @@ import com.realwakka.messenger.encryption.Translator;
 import java.nio.charset.Charset;
 
 public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessageCallback,
-        NfcAdapter.OnNdefPushCompleteCallback {
+        NfcAdapter.OnNdefPushCompleteCallback ,FragmentLifecycle{
     NfcAdapter mNfcAdapter;
 
     private static final int MESSAGE_SENT = 1;
@@ -39,6 +39,16 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         // Required empty public constructor
     }
 
+    @Override
+    public void onPauseFragment() {
+        Log.d("NFCFragment","onPauseFragment");
+    }
+
+    @Override
+    public void onResumeFragment() {
+        Log.d("NFCFragment","onResumeFragment");
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +56,6 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_nfc, container, false);
         mTextView = (TextView)v.findViewById(R.id.nfc_text);
-
         mNfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
         mNfcAdapter.setNdefPushMessageCallback(this, getActivity());
@@ -60,17 +69,6 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
 
         Log.d("NFCFragment","NFC READY");
         return v;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override

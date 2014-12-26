@@ -37,6 +37,25 @@ public class ChatsDataSource {
         dbHelper.close();
     }
 
+    public List<Chat> getAllChatsByRegidLimited(String regid,int limit){
+        List<Chat> list = new ArrayList<Chat>();
+
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_CHATS,
+                allColumns, MySQLiteHelper.CHATS_COLUMN_RECEIVER+"=? OR "+MySQLiteHelper.CHATS_COLUMN_SENDER+"=?", new String[]{regid,regid}, null, null, "LIMIT "+limit);
+
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Chat chat = cursorToChat(cursor);
+            list.add(chat);
+            cursor.moveToNext();
+        }
+
+        cursor.close();
+        return list;
+
+    }
+
     public List<Chat> getAllChatsByRegid(String regid){
         List<Chat> list = new ArrayList<Chat>();
 

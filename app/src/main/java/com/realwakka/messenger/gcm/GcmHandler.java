@@ -134,6 +134,8 @@ public class GcmHandler extends IntentService {
             Intent intent = new Intent(sender);
             intent.putExtra("message", decoded_msg);
 
+            Chat encrypted_chat = new Chat(0, sender, receiver, encrypted, new Date());
+
             Chat chat = new Chat(0, sender, receiver, decoded_msg, new Date());
 
             ChatsDataSource source = new ChatsDataSource(this);

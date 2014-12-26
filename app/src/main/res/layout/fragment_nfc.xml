@@ -3,12 +3,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context="com.realwakka.messenger.NFCFragment">
+    tools:context="com.realwakka.messenger.NFCFragment"
+    android:padding="20dp">
 
     <TextView
         android:id="@+id/nfc_text"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="NFC SENDING READY" />
 
 </LinearLayout>
