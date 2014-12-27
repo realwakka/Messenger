@@ -15,12 +15,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -148,7 +150,7 @@ public class GcmHandler extends IntentService {
 
             ChatsDataSource source = new ChatsDataSource(this);
             source.open();
-            source.addChat(encrypted_chat);
+            source.addChat(chat);
             source.close();
 
             LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
@@ -213,7 +215,12 @@ public class GcmHandler extends IntentService {
                     v.vibrate(500);
                 }
 
-
+                if(mOption.isAlarm_on_screen_off()){
+                    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                    PowerManager.WakeLock wl = pm.newWakeLock(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, "My Tag");
+                    wl.acquire(3000);
+                    wl.release();
+                }
             }
 
         });

@@ -52,6 +52,7 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
@@ -200,14 +201,7 @@ public class ChatActivity extends Activity{
             TextView nameView = (TextView)v.findViewById(R.id.chat_name);
 
             Chat chat = list.get(position);
-            String decrypted;
-            try {
-                decrypted = Translator.decryptStringBase64(chat.getText(), mPrivateKey);
-            }catch(Exception e){
-                e.printStackTrace();
-                decrypted = "ENCRYPTED MESSAGE";
-            }
-            chatView.setText(decrypted);
+            chatView.setText(chat.getText());
 
             if(chat.getFrom_reg().equals(mFriend.getRegid())){
                 nameView.setText(mFriend.getName());
@@ -256,16 +250,18 @@ public class ChatActivity extends Activity{
         @Override
         protected String doInBackground(String... params) {
             try {
-                String encoded = URLEncoder.encode(params[0],"UTF-8");
+                String msg = params[0];
                 byte[] b_pub = mFriend.getPubicKey();
-                Log.d("ChatActivity","PublicKey length"+b_pub.length);
                 PublicKey pub_key = KeyFactory.getInstance(Translator.ALGORITHM).generatePublic(new X509EncodedKeySpec(b_pub));
+
+                String encoded = URLEncoder.encode(msg,"UTF-8");
                 String encrypted = Translator.encryptStringBase64(encoded,pub_key);
 
-                Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encrypted, new Date());
-                Chat decoded = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),params[0], new Date());
 
-                String responseAsString = GcmUtils.sendChat(chat,mApiKey);
+                Chat encrypted_chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),encrypted, new Date());
+                Chat chat = new Chat(Chat.TYPE_MESSAGE,mOption.getRegid(),mFriend.getRegid(),msg, new Date());
+
+                String responseAsString = GcmUtils.sendChat(encrypted_chat,mApiKey);
                 Log.d("ChatActivity",responseAsString);
 
                 mDataSource.addChat(chat);
