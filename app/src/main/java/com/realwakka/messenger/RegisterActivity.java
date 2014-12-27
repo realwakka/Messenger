@@ -71,6 +71,7 @@ public class RegisterActivity extends Activity {
                 }
             }catch(Exception e){
                 e.printStackTrace();
+                setResult(RESULT_CANCELED);
             }
             finish();
         }

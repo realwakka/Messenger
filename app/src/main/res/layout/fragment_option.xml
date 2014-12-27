@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:id="@+id/option_name"
+            android:editable="false"
             android:clickable="false"/>
 
     </LinearLayout>

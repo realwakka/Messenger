@@ -6,6 +6,9 @@ import android.app.PendingIntent;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +16,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,6 +29,7 @@ import com.realwakka.messenger.R;
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.data.NfcData;
+import com.realwakka.messenger.data.Option;
 import com.realwakka.messenger.encryption.Translator;
 import com.realwakka.messenger.sqlite.ChatsDataSource;
 import com.realwakka.messenger.sqlite.FriendsDataSource;
@@ -45,11 +50,14 @@ public class GcmHandler extends IntentService {
         super("GcmHandler");
     }
 
+    private Option mOption;
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d("GcmHandler","onCreate");
         handler = new Handler();
+        mOption = Option.load(this);
 
     }
 
@@ -140,7 +148,7 @@ public class GcmHandler extends IntentService {
 
             ChatsDataSource source = new ChatsDataSource(this);
             source.open();
-            source.addChat(chat);
+            source.addChat(encrypted_chat);
             source.close();
 
             LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
@@ -156,7 +164,11 @@ public class GcmHandler extends IntentService {
         mReceivedChat = chat;
 
         handler.post(new Runnable() {
+            private void notification(){
+
+            }
             public void run() {
+
                 Context context = getApplicationContext();
 
                 Chat chat = mReceivedChat;
@@ -167,7 +179,7 @@ public class GcmHandler extends IntentService {
 
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.ic_launcher)
+                                .setSmallIcon(R.drawable.string_icon)
                                 .setContentTitle(friend.getName())
                                 .setContentText(chat.getText());
 
@@ -189,6 +201,19 @@ public class GcmHandler extends IntentService {
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
                 mNotificationManager.notify(getResources().getInteger(R.integer.notification_id), mBuilder.build());
+
+                if(mOption.isSound()){
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                    r.play();
+                }
+
+                if(mOption.isVibration()){
+                    Vibrator v = (Vibrator) GcmHandler.this.getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(500);
+                }
+
+
             }
 
         });

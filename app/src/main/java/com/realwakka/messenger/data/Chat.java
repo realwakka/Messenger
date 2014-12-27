@@ -82,9 +82,7 @@ public class Chat {
                 .setDateFormat(DateFormat.FULL, DateFormat.FULL).create();
         String json = gson.toJson(this);
 
-
         return gson.toJson(this);
-
 
     }
 

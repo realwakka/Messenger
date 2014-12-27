@@ -82,7 +82,7 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
             String text = nfcData.toJSON();
             msg = new NdefMessage(
                     new NdefRecord[] { createMimeRecord(
-                            "application/vnd.com.example.android.beam", text.getBytes())
+                            getString(R.string.mime_type), text.getBytes())
                     });
 
             String str = getString(R.string.nfc_instruction2);
@@ -99,7 +99,16 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         String str = getString(R.string.nfc_instruction1);
 //        mTextView.setText(str);
     }
-
+    private final Handler mPushHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_SENT:
+                    Toast.makeText(getActivity(), "Invitation send", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
+    };
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

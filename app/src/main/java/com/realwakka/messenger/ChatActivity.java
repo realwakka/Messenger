@@ -54,6 +54,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -75,6 +76,7 @@ public class ChatActivity extends Activity{
     ChatsDataSource mDataSource;
 
     String mApiKey;
+    PrivateKey mPrivateKey;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -144,7 +146,11 @@ public class ChatActivity extends Activity{
         mEditText = (EditText)findViewById(R.id.chat_chat);
 
         getActionBar().setTitle(mFriend.getName());
-
+        try {
+            mPrivateKey = Translator.getPrivateKey(this);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -194,7 +200,14 @@ public class ChatActivity extends Activity{
             TextView nameView = (TextView)v.findViewById(R.id.chat_name);
 
             Chat chat = list.get(position);
-            chatView.setText(chat.getText());
+            String decrypted;
+            try {
+                decrypted = Translator.decryptStringBase64(chat.getText(), mPrivateKey);
+            }catch(Exception e){
+                e.printStackTrace();
+                decrypted = "ENCRYPTED MESSAGE";
+            }
+            chatView.setText(decrypted);
 
             if(chat.getFrom_reg().equals(mFriend.getRegid())){
                 nameView.setText(mFriend.getName());
@@ -255,7 +268,7 @@ public class ChatActivity extends Activity{
                 String responseAsString = GcmUtils.sendChat(chat,mApiKey);
                 Log.d("ChatActivity",responseAsString);
 
-                mDataSource.addChat(decoded);
+                mDataSource.addChat(chat);
 
             }
 
