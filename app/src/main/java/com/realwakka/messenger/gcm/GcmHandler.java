@@ -1,11 +1,13 @@
 package com.realwakka.messenger.gcm;
 
 import android.app.IntentService;
+import android.app.KeyguardManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -181,7 +183,8 @@ public class GcmHandler extends IntentService {
 
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.string_icon)
+                                .setSmallIcon(R.drawable.ic_stat_ic_stat_string_icon)
+                                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher))
                                 .setContentTitle(friend.getName())
                                 .setContentText(chat.getText());
 
@@ -216,10 +219,11 @@ public class GcmHandler extends IntentService {
                 }
 
                 if(mOption.isAlarm_on_screen_off()){
-                    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                    PowerManager.WakeLock wl = pm.newWakeLock(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, "My Tag");
-                    wl.acquire(3000);
-                    wl.release();
+
+                    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                    PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                            | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+                    wakeLock.acquire(1000);
                 }
             }
 

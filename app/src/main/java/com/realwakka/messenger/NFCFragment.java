@@ -90,6 +90,7 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         }catch(Exception e){
             e.printStackTrace();
         }
+//        mPushHandler.obtainMessage(MESSAGE_SENT).sendToTarget();
         return msg;
     }
 
@@ -104,7 +105,8 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_SENT:
-                    Toast.makeText(getActivity(), "Invitation send", Toast.LENGTH_LONG).show();
+                    String str = getString(R.string.nfc_instruction2);
+                    mTextView.setText(str);
                     break;
             }
         }
@@ -115,6 +117,8 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
             switch (msg.what) {
                 case MESSAGE_SENT:
                     Toast.makeText(getActivity(), "Invitation send", Toast.LENGTH_LONG).show();
+                    String str = getString(R.string.nfc_instruction1);
+                    mTextView.setText(str);
                     break;
             }
         }

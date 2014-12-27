@@ -2,9 +2,7 @@
 <resources>
 
     <string name="app_name">String</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="welcome">Welcome to String</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_activity_accept">AcceptActivity</string>
     <string name="preference_file_key">messenger_data</string>
@@ -16,7 +14,7 @@
     <string name="gcm_name">com.realwakka.android.gcm</string>
     <string name="nfc_instruction1">Please place it behind a friend\'s cell phone</string>
     <string name="nfc_instruction2">Click here to invite friend</string>
-
+    <string name="duplicate_friend">You already have this friend</string>
     <integer name="notification_id">23412</integer>
 
     <string-array name="tab_title">

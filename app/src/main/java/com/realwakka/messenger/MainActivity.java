@@ -49,6 +49,7 @@ public class MainActivity extends FragmentActivity {
 
             currentPosition = newPosition;
             getActionBar().setSelectedNavigationItem(newPosition);
+
         }
     };
 
@@ -82,6 +83,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         mViewPager.setOnPageChangeListener(PageChangeListener);
+
     }
 
     @Override

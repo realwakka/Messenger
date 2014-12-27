@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.realwakka.messenger.data.Chat;
 import com.realwakka.messenger.data.Friend;
@@ -53,7 +54,7 @@ public class AcceptActivity extends Activity {
 
     private Option mOption;
     private NfcData mReceivedData;
-
+    FriendsDataSource mFriendsDataSource = new FriendsDataSource(this);
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -69,7 +70,12 @@ public class AcceptActivity extends Activity {
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         loadData(getIntent());
-
+        mFriendsDataSource.open();
+        Friend friend = mFriendsDataSource.getFriendByRegid(mReceivedData.getRegid());
+        if(friend!=null){
+            Toast.makeText(this,getString(R.string.duplicate_friend),Toast.LENGTH_LONG).show();
+            finish();
+        }
         String str = "You've just received "+mReceivedData.getName()+"'s invitation. Do you want to accept this?";
 
         mTextView.setText(str);
@@ -90,7 +96,6 @@ public class AcceptActivity extends Activity {
 
         String s = "";
 
-        // parse through all NDEF messages and their records and pick text type only
         Parcelable[] data = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
         NdefMessage msg = (NdefMessage) data[0];
         try {
@@ -104,7 +109,7 @@ public class AcceptActivity extends Activity {
 
         mReceivedData = NfcData.fromJSON(s);
 
-        Log.d("AcceptActivity","Received NFC pubkey length"+mReceivedData.getPub_key().length);
+//        Log.d("AcceptActivity","Received NFC pubkey length"+mReceivedData.getPub_key().length);
     }
 
     public void saveToDB(NfcData data){
