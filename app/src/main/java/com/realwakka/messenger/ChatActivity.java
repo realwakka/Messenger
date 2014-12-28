@@ -59,6 +59,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -199,15 +200,24 @@ public class ChatActivity extends Activity{
 
             TextView chatView = (TextView)v.findViewById(R.id.chat_chat);
             TextView nameView = (TextView)v.findViewById(R.id.chat_name);
+            TextView dateView = (TextView)v.findViewById(R.id.chat_date);
+
 
             Chat chat = list.get(position);
-            chatView.setText(chat.getText());
 
+            Date date = chat.getDate();
+            String date_str = DateFormat.getDateInstance(DateFormat.SHORT).format(date);
+
+            chatView.setText(chat.getText());
+            dateView.setText(date_str);
             if(chat.getFrom_reg().equals(mFriend.getRegid())){
                 nameView.setText(mFriend.getName());
                 nameView.setGravity(Gravity.LEFT);
+
                 chatView.setGravity(Gravity.LEFT);
                 layout.setGravity(Gravity.LEFT);
+                dateView.setGravity(Gravity.RIGHT);
+
 
 
             }else{
@@ -215,6 +225,7 @@ public class ChatActivity extends Activity{
                 nameView.setGravity(Gravity.RIGHT);
                 chatView.setGravity(Gravity.RIGHT);
                 layout.setGravity(Gravity.RIGHT);
+                dateView.setGravity(Gravity.LEFT);
             }
 
             return v;

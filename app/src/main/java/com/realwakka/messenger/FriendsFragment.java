@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.realwakka.messenger.data.Friend;
 import com.realwakka.messenger.sqlite.FriendsDataSource;
@@ -33,6 +34,7 @@ public class FriendsFragment extends Fragment implements FragmentLifecycle{
     BroadcastReceiver mNewFriendReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Toast.makeText(getActivity(),"New Friend Added",Toast.LENGTH_LONG).show();
             refreshFriendsList();
         }
     };

@@ -122,6 +122,11 @@ public class GcmHandler extends IntentService {
         source.addFriend(friend);
         source.close();
 
+        Intent intent = new Intent(getString(R.string.action_new_friend));
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+        manager.sendBroadcast(intent);
+
+
     }
     private void processTypeMessage(Bundle extras) throws Exception{
 
