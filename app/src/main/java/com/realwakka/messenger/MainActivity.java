@@ -83,7 +83,9 @@ public class MainActivity extends FragmentActivity {
         }
 
         mViewPager.setOnPageChangeListener(PageChangeListener);
-
+        actionBar.setIcon(R.drawable.ic_launcher);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setHomeButtonEnabled(true);
     }
 
     @Override
