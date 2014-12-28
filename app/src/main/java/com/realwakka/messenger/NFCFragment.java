@@ -50,6 +50,8 @@ public class NFCFragment extends Fragment implements NfcAdapter.CreateNdefMessag
 
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

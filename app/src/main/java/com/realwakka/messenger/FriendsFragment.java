@@ -1,8 +1,12 @@
 package com.realwakka.messenger;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -34,15 +38,22 @@ public class FriendsFragment extends Fragment implements FragmentLifecycle{
     BroadcastReceiver mNewFriendReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(getActivity(),"New Friend Added",Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"New Friend Added",Toast.LENGTH_LONG).show();
             refreshFriendsList();
         }
     };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("FriendsFragment","onCreate");
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshFriendsList();
     }
 
     @Override
@@ -72,14 +83,39 @@ public class FriendsFragment extends Fragment implements FragmentLifecycle{
         mListView = (ListView)v.findViewById(R.id.friends_list);
 
         mListView.setOnItemClickListener(new FriendClickListener());
-
-        IntentFilter intentFilter = new IntentFilter("com.realwakka.messenger.RefreshFriends");
+        mListView.setOnItemLongClickListener(new FriendLongClickListener());
+        IntentFilter intentFilter = new IntentFilter(getString(R.string.action_new_friend));
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mNewFriendReceiver,intentFilter);
 
         refreshFriendsList();
 
         Log.d("FriendsFragment","onCreateView");
         return v;
+    }
+
+    private void openDeleteDialog(final Friend friend){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Do you want to delete "+friend.getName())
+                .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteFriend(friend);
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.show();
+    }
+    private void deleteFriend(Friend friend){
+        FriendsDataSource source = new FriendsDataSource(getActivity());
+        source.open();
+        source.deleteFriendByRegid(friend.getRegid());
+        source.close();
+        refreshFriendsList();
+
     }
 
     class FriendClickListener implements AdapterView.OnItemClickListener{
@@ -98,9 +134,11 @@ public class FriendsFragment extends Fragment implements FragmentLifecycle{
     class FriendLongClickListener implements AdapterView.OnItemLongClickListener{
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            return false;
+            openDeleteDialog(mFriendList.get(position));
+            return true;
         }
     }
+
 
     class FriendsAdapter extends BaseAdapter{
         Context context;

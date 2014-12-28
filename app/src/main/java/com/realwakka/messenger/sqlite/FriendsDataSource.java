@@ -59,6 +59,10 @@ public class FriendsDataSource {
 
     }
 
+    public int deleteFriendByRegid(String regid){
+        return database.delete(MySQLiteHelper.TABLE_FRIENDS,MySQLiteHelper.FRIENDS_COLUMN_REGID+"=?",new String[]{regid});
+    }
+
     public ArrayList<Friend> getFriendsList(){
         ArrayList<Friend> list = new ArrayList<Friend>();
 
