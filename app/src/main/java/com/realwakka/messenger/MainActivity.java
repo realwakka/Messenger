@@ -12,10 +12,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -84,7 +86,7 @@ public class MainActivity extends FragmentActivity {
 
         mViewPager.setOnPageChangeListener(PageChangeListener);
         actionBar.setIcon(R.drawable.ic_launcher);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setDisplayHomeAsUpEnabled(true);
 //        actionBar.setHomeButtonEnabled(true);
     }
 

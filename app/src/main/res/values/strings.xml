@@ -4,8 +4,8 @@
     <string name="app_name">String</string>
     <string name="welcome">Welcome to String</string>
     <string name="title_activity_chat">ChatActivity</string>
-    <string name="title_activity_accept">AcceptActivity</string>
-    <string name="preference_file_key">messenger_data</string>
+    <string name="title_activity_accept">Invitation Coming!</string>
+
     <string name="title_activity_register">RegisterActivity</string>
     <string name="project_number">61823441123</string>
     <string name="project_apikey">AIzaSyDdYYZyScZoQ7REysA85CDYMNWu7hmhjG4</string>
@@ -16,7 +16,7 @@
     <string name="nfc_instruction2">Click here to invite friend</string>
     <string name="duplicate_friend">You already have this friend</string>
     <string name="action_new_friend">com.realwakka.messenger.newfriend</string>
-
+    <string name="preference_file_key">messenger_data</string>
     <integer name="notification_id">23412</integer>
 
     <string-array name="tab_title">
